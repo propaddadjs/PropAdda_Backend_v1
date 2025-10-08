@@ -1,0 +1,134 @@
+package com.propadda.prop.service;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.propadda.prop.model.CommercialPropertyDetails;
+import com.propadda.prop.model.EnquiredListingsDetails;
+import com.propadda.prop.model.FavoriteListingsDetails;
+import com.propadda.prop.model.ResidentialPropertyDetails;
+import com.propadda.prop.model.Users;
+import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
+import com.propadda.prop.repo.EnquiredListingsDetailsRepo;
+import com.propadda.prop.repo.FavoriteListingsDetailsRepo;
+import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
+import com.propadda.prop.repo.UsersRepo;
+
+@Service
+public class BuyerService {
+
+    @Autowired
+    private UsersRepo userRepo;
+    
+    @Autowired
+    private CommercialPropertyDetailsRepo cRepo;
+
+    @Autowired
+    private ResidentialPropertyDetailsRepo rRepo;
+
+    @Autowired
+    private FavoriteListingsDetailsRepo favRepo;
+
+    @Autowired
+    private EnquiredListingsDetailsRepo enqRepo;
+
+
+    public Map<String,List<?>> allFavoritePropertiesByBuyer(Integer buyerId) {
+        Users b = userRepo.findById(buyerId).isPresent() ? userRepo.findById(buyerId).get() : null;
+        List<ResidentialPropertyDetails> rpd = new ArrayList<>();
+        List<CommercialPropertyDetails> cpd = new ArrayList<>();
+        if(b!=null){
+            List<FavoriteListingsDetails> favs = favRepo.findByFavoritesOfBuyer(b);
+            for(FavoriteListingsDetails f : favs){
+                if(f.getPropertyCategory().equalsIgnoreCase("Commercial")){
+                    if(cRepo.findById(f.getPropertyId()).isPresent())
+                        cpd.add(cRepo.findById(f.getPropertyId()).get());
+                }
+                else if(f.getPropertyCategory().equalsIgnoreCase("Residential")){
+                    if(rRepo.findById(f.getPropertyId()).isPresent())
+                        rpd.add(rRepo.findById(f.getPropertyId()).get());
+                }
+            }
+        Map<String,List<?>> res = new HashMap<>();
+        res.put("Commercial",cpd);
+        res.put("Residential", rpd);
+        return res;
+        }
+        else{
+            return null;
+        }
+    }
+
+    public Map<String,List<?>> allEnquiriesByBuyer(Integer buyerId) {
+        Users b = userRepo.findById(buyerId).isPresent() ? userRepo.findById(buyerId).get() : null;
+        List<ResidentialPropertyDetails> rpd = new ArrayList<>();
+        List<CommercialPropertyDetails> cpd = new ArrayList<>();
+        if(b!=null){
+            List<EnquiredListingsDetails> enqs = enqRepo.findByEnquiriesByBuyer(b);
+            for(EnquiredListingsDetails e : enqs){
+                if(e.getPropertyCategory().equalsIgnoreCase("Commercial")){
+                    if(cRepo.findById(e.getPropertyId()).isPresent())
+                        cpd.add(cRepo.findById(e.getPropertyId()).get());
+                }
+                else if(e.getPropertyCategory().equalsIgnoreCase("Residential")){
+                    if(rRepo.findById(e.getPropertyId()).isPresent())
+                        rpd.add(rRepo.findById(e.getPropertyId()).get());
+                }
+            }
+        Map<String,List<?>> res = new HashMap<>();
+        res.put("Commercial",cpd);
+        res.put("Residential", rpd);
+        return res;
+        }
+        else{
+            return null;
+        }
+    }
+
+    public FavoriteListingsDetails addPropertyToFavoritesForBuyer(String category, Integer listingId, Integer buyerId) {
+        FavoriteListingsDetails f = new FavoriteListingsDetails();
+        Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if(favRepo.findByFavoritesOfBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isPresent()){
+            return null;
+        }
+        f.setFavoritesOfBuyer(userRepo.findById(buyerId).get());
+        f.setPropertyCategory(category);
+        f.setPropertyId(listingId);
+        return favRepo.save(f);
+    }
+
+    public Boolean checkFavorite(String category, Integer listingId, Integer buyerId) {
+        
+        Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return !favRepo.findByFavoritesOfBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isEmpty();
+    }
+
+    public EnquiredListingsDetails sendEnquiriesFromBuyer(EnquiredListingsDetails enquiry, String category, Integer listingId, Integer buyerId) {
+        EnquiredListingsDetails e = new EnquiredListingsDetails();
+        Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        if(enqRepo.findByEnquiriesByBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isPresent()){
+            return null;
+        }
+        e.setEnquiriesByBuyer(userRepo.findById(buyerId).get());
+        e.setPropertyCategory(category);
+        e.setPropertyId(listingId);
+        e.setBuyerName(enquiry.getBuyerName());
+        e.setBuyerPhoneNumber(enquiry.getBuyerPhoneNumber());
+        e.setBuyerType(enquiry.getBuyerType());
+        e.setBuyerReason(enquiry.getBuyerReason());
+        e.setBuyerReasonDetail(enquiry.getBuyerReasonDetail());
+        return enqRepo.save(e);
+    }
+
+    public Boolean checkEnquiry(EnquiredListingsDetails enquiry, String category, Integer listingId, Integer buyerId) {
+        Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        return !enqRepo.findByEnquiriesByBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isEmpty();
+    }
+
+
+}
