@@ -157,7 +157,7 @@ public class AgentService {
 
     @Transactional
     public AgentResponse updateAgentDetails(AgentUpdateRequest updatedAgentDetails, MultipartFile profileImage, Integer agentId)  throws java.io.IOException {
-        Users agent = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
+        Users agent = userRepo.findById(agentId).orElseThrow(() -> new IllegalArgumentException("Agent not found: " + agentId));
         if(agent!=null){
         if (updatedAgentDetails.getFirstName() != null) {
             agent.setFirstName(updatedAgentDetails.getFirstName());
@@ -177,14 +177,18 @@ public class AgentService {
         if (updatedAgentDetails.getCity() != null) {
             agent.setCity(updatedAgentDetails.getCity());
         }
-        if (!profileImage.isEmpty()) {
-            agent.setProfileImageUrl(gcsService.uploadKYCFiles(profileImage, "profileImage"));
-        }
         if (updatedAgentDetails.getAadharUrl() != null) {
             agent.setAadharUrl(updatedAgentDetails.getAadharUrl());
         }
         if (updatedAgentDetails.getAddress() != null) {
             agent.setAddress(updatedAgentDetails.getAddress());
+        }
+        if (updatedAgentDetails.getAgentReraNumber() != null) {
+            agent.setAgentReraNumber(updatedAgentDetails.getAgentReraNumber());
+        }
+
+        if (profileImage!=null && !profileImage.isEmpty()) {
+            agent.setProfileImageUrl(gcsService.uploadKYCFiles(profileImage, "profileImage"));
         }
     }   
         Users updatedUser = userRepo.save(agent);

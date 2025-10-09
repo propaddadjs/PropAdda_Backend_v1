@@ -103,7 +103,7 @@ public class ApplicationConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
         // Only list the origins you actually need in dev:
-        cfg.setAllowedOrigins(java.util.List.of("https://propadda-frontend-v1-506455747754.asia-south2.run.app"));
+        cfg.setAllowedOrigins(java.util.List.of("https://propadda-frontend-v1-506455747754.asia-south2.run.app","http://localhost:5173/"));
         // Methods your app uses + OPTIONS for preflight
         cfg.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
         // Headers your requests send (include Authorization for JWT)
@@ -130,6 +130,7 @@ public class ApplicationConfig {
             @Override public void addCorsMappings(CorsRegistry registry) {
                 registry.addMapping("/**")
                         .allowedOrigins("https://propadda-frontend-v1-506455747754.asia-south2.run.app")
+                        .allowedOrigins("http://localhost:5173/")
                         .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
                         .allowedHeaders("*");
             }

@@ -88,7 +88,7 @@ public class AgentController {
     }
 
     @PutMapping("/updateAgentDetails")
-    public ResponseEntity<?> updateAgentDetails(@RequestPart AgentUpdateRequest updatedAgentDetails, @RequestPart MultipartFile profileImage, @AuthenticationPrincipal CustomUserDetails cud)  throws IOException {
+    public ResponseEntity<?> updateAgentDetails(@RequestPart("updatedAgentDetails") AgentUpdateRequest updatedAgentDetails, @RequestPart(value="profileImage", required=false) MultipartFile profileImage, @AuthenticationPrincipal CustomUserDetails cud)  throws IOException {
         Integer agentId = cud.getUser().getUserId();
         if(agentService.updateAgentDetails(updatedAgentDetails,profileImage,agentId)!=null)
         return ResponseEntity.ok(agentService.updateAgentDetails(updatedAgentDetails,profileImage,agentId));

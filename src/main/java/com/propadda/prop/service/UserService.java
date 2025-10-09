@@ -19,6 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.propadda.prop.config.JwtService;
+import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.dto.CommercialPropertyResponse;
 import com.propadda.prop.dto.DetailedFilterRequest;
 import com.propadda.prop.dto.FilterRequest;
@@ -31,6 +32,7 @@ import com.propadda.prop.dto.UserResponse;
 import com.propadda.prop.enumerations.Kyc;
 import com.propadda.prop.enumerations.Role;
 import com.propadda.prop.exceptions.ResourceNotFoundException;
+import com.propadda.prop.mappers.AgentMapper;
 import com.propadda.prop.mappers.CommercialPropertyMapper;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.mappers.UserMapper;
@@ -1007,20 +1009,19 @@ public class UserService {
         return b;
     }
 
+    @Transactional
     public UserResponse updateUserDetails(Integer userId, UserRequest userDetails, MultipartFile profileImage) throws IOException {
-         UserResponse b = new UserResponse();
-         Users u = new Users();
+         Users u = userRepo.findById(userId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
          u.setFirstName(userDetails.getFirstName());
          u.setLastName(userDetails.getLastName());
          u.setPhoneNumber(userDetails.getPhoneNumber());
          u.setState(userDetails.getState());
          u.setCity(userDetails.getCity());
-         if(profileImage!=null){
+         if(profileImage!=null && !profileImage.isEmpty()){
             u.setProfileImageUrl(gcsService.uploadKYCFiles(profileImage, "profileImage"));
          }
-        if(userRepo.findById(userId).isPresent()){
-            b = UserMapper.toDto(u);
-        } 
+           UserResponse b = UserMapper.toDto(u);
+            userRepo.save(u);
         return b;
     }
 
@@ -1031,6 +1032,7 @@ public class UserService {
         return metrics; 
     }
 
+    @Transactional
     public UserResponse updateUserPassword(Integer userId, PasswordUpdateRequest passwordRequest) {
         Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
@@ -1049,6 +1051,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public Object addFeedbackFromUser(FeedbackDetails feedbackRequest, Integer userId) {
          Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
@@ -1060,6 +1063,7 @@ public class UserService {
         }
     }
 
+    @Transactional
     public Object addHelpRequestFromUser(HelpDetails helpRequest, Integer userId) {
         Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
@@ -1096,11 +1100,40 @@ public class UserService {
         u.setKycVerified(Kyc.PENDING);         // pending approval
         userRepo.save(u);
     }
-    
-    public String getStatus(String email) {
+
+        @Transactional
+        public void updateKycDetails(String email, String address, String reraNumber, MultipartFile profileImage,
+            MultipartFile aadhar) throws IOException {
+        if (address == null || address.isBlank())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address is required");
+        if (aadhar == null || aadhar.isEmpty())
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Aadhar file is required");
+
         Users u = userRepo.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return u.getKycVerified().name();
+        String aadharUrl = u.getAadharUrl();
+        if(!aadhar.isEmpty()){
+           aadharUrl = gcsService.uploadKYCFiles(aadhar,"aadhar"); // gs://... -> https URL if you map it
+        }
+        
+        String profileUrl = (profileImage != null && !profileImage.isEmpty())
+                ? gcsService.uploadKYCFiles(profileImage,"profileImage")
+                : u.getProfileImageUrl();
+
+        u.setAddress(address);
+        u.setAgentReraNumber(reraNumber);
+        u.setAadharUrl(aadharUrl);
+        if (profileUrl != null) u.setProfileImageUrl(profileUrl);
+
+        // u.setRole(Role.AGENT);                 // becomes agent
+        u.setKycVerified(Kyc.PENDING);         // pending approval
+        userRepo.save(u);
     }
 
+    
+    public AgentResponse getStatus(String email) {
+        Users u = userRepo.findByEmail(email)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
+        return AgentMapper.toDto(u);
+    }
 }

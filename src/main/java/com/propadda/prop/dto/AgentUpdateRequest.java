@@ -7,6 +7,7 @@ public class AgentUpdateRequest {
     private String phoneNumber;
     private String state;
     private String city;
+    private String agentReraNumber;
     private String profileImageUrl;
     private String aadharUrl;
     private String address;
@@ -81,6 +82,14 @@ public class AgentUpdateRequest {
 
     public void setAddress(String address) {
         this.address = address;
+    }
+
+    public String getAgentReraNumber() {
+        return agentReraNumber;
+    }
+
+    public void setAgentReraNumber(String agentReraNumber) {
+        this.agentReraNumber = agentReraNumber;
     }
 
 

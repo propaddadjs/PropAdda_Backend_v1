@@ -8,6 +8,8 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.propadda.prop.mappers.CommercialPropertyMapper;
+import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.model.EnquiredListingsDetails;
 import com.propadda.prop.model.FavoriteListingsDetails;
@@ -55,8 +57,8 @@ public class BuyerService {
                 }
             }
         Map<String,List<?>> res = new HashMap<>();
-        res.put("Commercial",cpd);
-        res.put("Residential", rpd);
+        res.put("Commercial",CommercialPropertyMapper.toDtoList(cpd));
+        res.put("Residential", ResidentialPropertyMapper.toDtoList(rpd));
         return res;
         }
         else{
@@ -81,8 +83,8 @@ public class BuyerService {
                 }
             }
         Map<String,List<?>> res = new HashMap<>();
-        res.put("Commercial",cpd);
-        res.put("Residential", rpd);
+        res.put("Commercial",CommercialPropertyMapper.toDtoList(cpd));
+        res.put("Residential", ResidentialPropertyMapper.toDtoList(rpd));
         return res;
         }
         else{

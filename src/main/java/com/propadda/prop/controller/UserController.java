@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.dto.DetailedFilterRequest;
 import com.propadda.prop.dto.FilterRequest;
 import com.propadda.prop.dto.PasswordUpdateRequest;
@@ -163,9 +164,25 @@ public class UserController {
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/kycStatus")
-    public ResponseEntity<Map<String, Object>> status(@AuthenticationPrincipal CustomUserDetails cud) {
-        var status = userService.getStatus(cud.getUsername());
-        return ResponseEntity.ok(Map.of("kycStatus", status));
+    public ResponseEntity<?> status(@AuthenticationPrincipal CustomUserDetails cud) {
+        AgentResponse res = userService.getStatus(cud.getUsername());
+        return ResponseEntity.ok(res);
+    }
+
+@PreAuthorize("isAuthenticated()")
+    @PostMapping(value = "/updateKycDetails", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, Object>> updateKycDetails(
+            @RequestParam String address,                       // required
+            @RequestParam(required = false) String reraNumber,  // optional
+            @RequestPart(name = "profileImage", required = false) MultipartFile profileImage, // optional
+            @RequestPart(name = "aadhar", required = true) MultipartFile aadhar,              // required
+            @AuthenticationPrincipal CustomUserDetails cud
+    ) throws IOException {
+        userService.updateKycDetails(cud.getUsername(), address, reraNumber, profileImage, aadhar);
+        return ResponseEntity.ok(Map.of(
+                "message", "KYC initiated and pending for admin approval",
+                "status", "PENDING"
+        ));
     }
 
 
