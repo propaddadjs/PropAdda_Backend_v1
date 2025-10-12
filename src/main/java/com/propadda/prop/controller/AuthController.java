@@ -1,5 +1,7 @@
 package com.propadda.prop.controller;
 
+import java.util.Map;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -12,14 +14,17 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.propadda.prop.config.JwtService;
 import com.propadda.prop.dto.AuthResponse;
+import com.propadda.prop.dto.ForgotPasswordRequest;
 import com.propadda.prop.dto.LoginRequest;
 import com.propadda.prop.dto.LoginResponse;
+import com.propadda.prop.dto.ResetPasswordRequest;
 import com.propadda.prop.dto.SignupRequest;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.UsersRepo;
 import com.propadda.prop.security.CustomUserDetailsService;
 import com.propadda.prop.service.UserService;
 
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
@@ -73,5 +78,22 @@ public class AuthController {
         String access = jwt.generateAccessToken(principal);
         String refresh = jwt.generateRefreshToken(principal); // optional
         return mapAuth(u, access, refresh);
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgot(@RequestBody ForgotPasswordRequest req, HttpServletRequest http) {
+        // Derive app base URL for link
+        String baseUrl = String.format("%s://%s", http.getScheme(), http.getHeader("Host"));
+        users.sendResetLink(req.getEmail(), baseUrl);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> reset(@RequestBody ResetPasswordRequest req) {
+        if (req.getNewPassword() == null || req.getNewPassword().length() < 8) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Password must be at least 8 characters."));
+        }
+        users.resetPassword(req.getToken(), req.getNewPassword());
+        return ResponseEntity.ok().build();
     }
 }

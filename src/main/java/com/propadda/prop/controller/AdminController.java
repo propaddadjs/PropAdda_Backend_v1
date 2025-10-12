@@ -410,4 +410,38 @@ public class AdminController {
         return ResponseEntity.ok(adminService.markAllNotificationViewedForAdmin());
     }
     
+    @GetMapping("/getCreatedLeads")
+    public ResponseEntity<?> getCreatedLeads(){
+        return ResponseEntity.ok(adminService.getCreatedLeads());
+    }
+
+    @PatchMapping("/markLeadAsAssigned/{enquiryId}")
+    public ResponseEntity<?> markLeadAsAssigned(@PathVariable Integer enquiryId) {
+        return ResponseEntity.ok(adminService.markLeadAsAssigned(enquiryId));
+    }
+
+    @PatchMapping("/markLeadAsRemoved/{enquiryId}")
+    public ResponseEntity<?> markLeadAsRemoved(@PathVariable Integer enquiryId) {
+        return ResponseEntity.ok(adminService.markLeadAsRemoved(enquiryId));
+    }
+
+    @GetMapping("/getAssignedLeads")
+    public ResponseEntity<?> getAssignedLeads(){
+        return ResponseEntity.ok(adminService.getAssignedLeads());
+    }
+
+    @PatchMapping("/markLeadAsSold/{enquiryId}")
+    public ResponseEntity<?> markLeadAsSold(@PathVariable Integer enquiryId) {
+        return ResponseEntity.ok(adminService.markLeadAsSold(enquiryId));
+    }
+
+    @PatchMapping("/markLeadAsNotInterested/{enquiryId}")
+    public ResponseEntity<?> markLeadAsNotInterested(@PathVariable Integer enquiryId) {
+        return ResponseEntity.ok(adminService.markLeadAsNotInterested(enquiryId));
+    }
+
+    @GetMapping("/getMediaProductionRequests")
+    public ResponseEntity<?> getMediaProductionRequests(){
+        return ResponseEntity.ok(adminService.getMediaProductionRequests());
+    }
 }

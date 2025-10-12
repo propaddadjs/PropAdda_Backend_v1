@@ -24,6 +24,10 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
 
     List<ResidentialPropertyDetails> findByResidentialOwnerAndSold(Users owner, Boolean sold);
 
+    List<ResidentialPropertyDetails> findByResidentialOwnerAndExpiredAndSold(Users owner, Boolean expired, Boolean sold);
+
+    Optional<ResidentialPropertyDetails> findByListingIdAndResidentialOwnerAndExpiredAndSold(Integer listingId, Users owner, Boolean expired, Boolean sold);
+
     List<ResidentialPropertyDetails> findByAdminApprovedAndSoldAndExpired(String adminApproved, Boolean sold, Boolean expired);
 
     List<ResidentialPropertyDetails> findByAdminApprovedAndSoldAndExpiredAndVip(String adminApproved, Boolean sold, Boolean expired, Boolean vip);

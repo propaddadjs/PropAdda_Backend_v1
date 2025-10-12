@@ -1,8 +1,12 @@
 package com.propadda.prop.service;
 
 import java.io.IOException;
+import java.security.SecureRandom;
+import java.time.Duration;
+import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,10 +78,14 @@ public class UserService {
     private final PasswordEncoder encoder;
     private final AuthenticationManager authManager;
     private final JwtService jwtService;
+    private final MailSenderService mailSender;
+    private static final Duration TOKEN_TTL = Duration.ofHours(1);
+    private static final SecureRandom RNG = new SecureRandom();
 
-    public UserService(UsersRepo repo, PasswordEncoder encoder, AuthenticationManager am, JwtService jwtService) {
+    public UserService(UsersRepo repo, PasswordEncoder encoder, AuthenticationManager am, JwtService jwtService, MailSenderService mailSender) {
         this.userRepo = repo; this.encoder = encoder; this.authManager = am;
         this.jwtService = jwtService;
+        this.mailSender = mailSender;
     }
 
     public Users registerBuyer(String firstName, String lastName, String email, String phoneNumber,
@@ -296,6 +304,7 @@ public class UserService {
     }
 
     public Map<String, List<?>> getDetailedFilteredProperties(DetailedFilterRequest filters) {
+        System.out.println("Filters applied: "+filters.toString());
         Map<String, List<?>> res = new HashMap<>();
         List<ResidentialPropertyResponse> resRes = getDetailedFilteredResidentialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
         List<CommercialPropertyResponse> comRes = getDetailedFilteredCommercialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
@@ -1135,5 +1144,43 @@ public class UserService {
         Users u = userRepo.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
         return AgentMapper.toDto(u);
+    }
+
+    @Transactional
+    public void sendResetLink(String email, String appBaseUrl) {
+        userRepo.findByEmailIgnoreCase(email).ifPresent(user -> {
+            // Generate a strong random token
+            byte[] bytes = new byte[32];
+            RNG.nextBytes(bytes);
+            String random = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+            String token = random + "." + (Instant.now().plus(TOKEN_TTL).toEpochMilli());
+            user.setResetToken(token);
+
+            user.setResetToken(token);
+            userRepo.save(user);
+
+            String link = appBaseUrl + "/reset-password?token=" + token;
+            mailSender.send(
+                user.getEmail(),
+                "Password Reset",
+                "Click the link to reset your password (valid for 1 hour): " + link
+            );
+        });
+        // Always return 200 to avoid email enumeration
+    }
+
+    @Transactional
+    public void resetPassword(String token, String newPassword) {
+        Users user = userRepo.findByResetToken(token)
+            .orElseThrow(() -> new IllegalArgumentException("Invalid or expired reset link"));
+
+        String[] parts = token.split("\\.");
+        if (parts.length != 2) throw new IllegalArgumentException("Invalid link");
+        long exp = Long.parseLong(parts[1]);
+        if (Instant.now().toEpochMilli() > exp) throw new IllegalArgumentException("Expired link");
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        user.setResetToken(null);
+        userRepo.save(user);
     }
 }

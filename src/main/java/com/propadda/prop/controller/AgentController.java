@@ -1,6 +1,7 @@
 package com.propadda.prop.controller;
 
 import java.io.IOException;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.propadda.prop.dto.AgentUpdateRequest;
+import com.propadda.prop.dto.MediaProductionGraphicsRequest;
+import com.propadda.prop.dto.MediaProductionPhotoshootRequest;
 import com.propadda.prop.dto.PasswordUpdateRequest;
 import com.propadda.prop.model.FeedbackDetails;
 import com.propadda.prop.model.HelpDetails;
@@ -191,6 +194,30 @@ public class AgentController {
         Integer agentId = cud.getUser().getUserId();
         Object propObject = agentService.renewProperty(listingId, category,agentId);
         return ResponseEntity.ok(propObject);
+    }
+
+    @GetMapping("/getPropertiesToRequestGraphicShoot")
+    public ResponseEntity<?> getPropertiesToRequestGraphicShoot(@AuthenticationPrincipal CustomUserDetails cud) {
+        Integer agentId = cud.getUser().getUserId();
+        return ResponseEntity.ok(agentService.getPropertiesToRequestGraphicShoot(agentId));
+    }
+
+    @GetMapping("/getPropertiesToRequestPhotoshoot")
+    public ResponseEntity<?> getPropertiesToRequestPhotoshoot(@AuthenticationPrincipal CustomUserDetails cud) {
+        Integer agentId = cud.getUser().getUserId();
+        return ResponseEntity.ok(agentService.getPropertiesToRequestPhotoshoot(agentId));
+    }
+
+    @PostMapping("/addMediaProductionGraphicsRequestFromAgent")
+    public ResponseEntity<?> addMediaProductionGraphicsRequestFromAgent(@RequestBody List<MediaProductionGraphicsRequest> reqList, @AuthenticationPrincipal CustomUserDetails cud) {
+        Integer agentId = cud.getUser().getUserId();
+        return ResponseEntity.ok(agentService.addMediaProductionGraphicsRequestFromAgent(reqList,agentId));
+    }
+
+    @PostMapping("/addMediaProductionPhotoshootRequestFromAgent")
+    public ResponseEntity<?> addMediaProductionPhotoshootRequestFromAgent(@RequestBody List<MediaProductionPhotoshootRequest> reqList, @AuthenticationPrincipal CustomUserDetails cud) {
+        Integer agentId = cud.getUser().getUserId();
+        return ResponseEntity.ok(agentService.addMediaProductionPhotoshootRequestFromAgent(reqList,agentId));
     }
 
 }

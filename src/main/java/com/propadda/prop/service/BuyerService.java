@@ -8,6 +8,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.propadda.prop.enumerations.EnquiryStatus;
 import com.propadda.prop.mappers.CommercialPropertyMapper;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.model.CommercialPropertyDetails;
@@ -124,6 +125,7 @@ public class BuyerService {
         e.setBuyerType(enquiry.getBuyerType());
         e.setBuyerReason(enquiry.getBuyerReason());
         e.setBuyerReasonDetail(enquiry.getBuyerReasonDetail());
+        e.setEnquiryStatus(EnquiryStatus.CREATED);
         return enqRepo.save(e);
     }
 

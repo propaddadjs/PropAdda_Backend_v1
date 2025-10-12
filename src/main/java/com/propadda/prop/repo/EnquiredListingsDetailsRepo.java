@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.propadda.prop.enumerations.EnquiryStatus;
 import com.propadda.prop.model.EnquiredListingsDetails;
 import com.propadda.prop.model.Users;
 
@@ -24,5 +25,9 @@ public interface EnquiredListingsDetailsRepo extends JpaRepository<EnquiredListi
     Integer countByEnquiriesByBuyer(Users buyer);
 
     Optional<EnquiredListingsDetails> findByEnquiriesByBuyerAndPropertyIdAndPropertyCategory(Users users, Integer propertyId, String propertyCategory);
+
+    public List<EnquiredListingsDetails> findByEnquiryStatus(EnquiryStatus enquiryStatus);
+
+    long countByEnquiryStatus(EnquiryStatus created);
 
 }

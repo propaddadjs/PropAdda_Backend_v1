@@ -232,7 +232,7 @@ public class ResidentialPropertyDetailsService {
     // Delete property
     @Transactional
     public void deleteProperty(Integer listingId, Integer agentId) {
-        ResidentialPropertyDetails rpd = repository.findByListingIdAndResidentialOwner_UserId(listingId,agentId).orElseThrow(() -> new IllegalArgumentException("Property not found or not owned by agent"));;
+        ResidentialPropertyDetails rpd = repository.findByListingIdAndResidentialOwner_UserId(listingId,agentId).orElseThrow(() -> new IllegalArgumentException("Property not found or not owned by agent"));
         
             for(ResidentialPropertyMedia m : rpd.getResidentialPropertyMediaFiles()){
                 String url = m.getUrl();

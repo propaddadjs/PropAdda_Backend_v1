@@ -34,6 +34,10 @@ public interface CommercialPropertyDetailsRepo extends JpaRepository<CommercialP
 
     List<CommercialPropertyDetails> findByCommercialOwnerAndSold(Users owner, Boolean sold);
 
+    List<CommercialPropertyDetails> findByCommercialOwnerAndExpiredAndSold(Users owner, Boolean expired, Boolean sold);
+
+    Optional<CommercialPropertyDetails> findByListingIdAndCommercialOwnerAndExpiredAndSold(Integer listingId, Users owner, Boolean expired, Boolean sold);
+
     List<CommercialPropertyDetails> findByAdminApprovedAndSoldAndExpired(String adminApproved, Boolean sold, Boolean expired);
 
     List<CommercialPropertyDetails> findByAdminApprovedAndSoldAndExpiredAndVip(String adminApproved, Boolean sold, Boolean expired, Boolean vip);

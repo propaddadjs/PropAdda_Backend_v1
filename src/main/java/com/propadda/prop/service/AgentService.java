@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -15,6 +17,8 @@ import org.springframework.web.multipart.MultipartFile;
 import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.dto.AgentUpdateRequest;
 import com.propadda.prop.dto.CommercialPropertyResponse;
+import com.propadda.prop.dto.MediaProductionGraphicsRequest;
+import com.propadda.prop.dto.MediaProductionPhotoshootRequest;
 import com.propadda.prop.dto.PasswordUpdateRequest;
 import com.propadda.prop.dto.ResidentialPropertyResponse;
 import com.propadda.prop.enumerations.Role;
@@ -25,12 +29,14 @@ import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.model.FeedbackDetails;
 import com.propadda.prop.model.HelpDetails;
+import com.propadda.prop.model.MediaProduction;
 import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
 import com.propadda.prop.repo.FeedbackDetailsRepo;
 import com.propadda.prop.repo.HelpDetailsRepo;
+import com.propadda.prop.repo.MediaProductionRepo;
 import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
@@ -63,6 +69,9 @@ public class AgentService {
 
     @Autowired
     private GcsService gcsService;
+
+    @Autowired
+    private MediaProductionRepo mpRepo;
 
     public Map<String,List<?>> getAllPropertiesByAgent(Integer agentId) {
         Users owner = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
@@ -358,5 +367,180 @@ public class AgentService {
             return null;
         }
     }
+
+    public Map<String, List<?>> getPropertiesToRequestGraphicShoot(Integer agentId) {
+    // 1. Fetch the Agent/User once (better to handle Optional, but keeping your original style for now)
+        Users agent = userRepo.findById(agentId)
+                            .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
+
+        // 2. Fetch all existing media production requests for the agent
+        List<MediaProduction> mpList = mpRepo.findByRequesterUserIdAndGraphics(agentId, true);
+
+        // 3. Create Sets for fast lookup of property IDs that ALREADY have a request
+        Set<Integer> residentialRequestedIds = mpList.stream()
+                .filter(mp -> "residential".equalsIgnoreCase(mp.getPropertyCategory()))
+                .map(MediaProduction::getPropertyId)
+                .collect(Collectors.toSet());
+        System.out.println("getPropertiesToRequestShoot - residentialRequestedIds::: "+residentialRequestedIds);       
+
+        Set<Integer> commercialRequestedIds = mpList.stream()
+                .filter(mp -> "commercial".equalsIgnoreCase(mp.getPropertyCategory()))
+                .map(MediaProduction::getPropertyId)
+                .collect(Collectors.toSet());
+        System.out.println("getPropertiesToRequestShoot - commercialRequestedIds::: "+commercialRequestedIds);  
+
+        // 4. Fetch all properties owned by the agent
+        List<ResidentialPropertyDetails> resPropList = rRepo.findByResidentialOwnerAndExpiredAndSold(agent, false, false);
+        List<CommercialPropertyDetails> comPropList = cRepo.findByCommercialOwnerAndExpiredAndSold(agent, false, false);
+
+        // 5. Filter the properties using the Sets (O(1) lookups)
+        List<ResidentialPropertyDetails> resPropFinalList = resPropList.stream()
+                .filter(rpd -> !residentialRequestedIds.contains(rpd.getListingId()))
+                .collect(Collectors.toList());
+
+        List<CommercialPropertyDetails> comPropFinalList = comPropList.stream()
+                .filter(cpd -> !commercialRequestedIds.contains(cpd.getListingId()))
+                .collect(Collectors.toList());
+
+        // 6. Build and return the response
+        Map<String, List<?>> response = new HashMap<>();
+        response.put("Residential", ResidentialPropertyMapper.toDtoList(resPropFinalList));
+        response.put("Commercial", CommercialPropertyMapper.toDtoList(comPropFinalList));
+        return response;
+    }
+
+     public Map<String, List<?>> getPropertiesToRequestPhotoshoot(Integer agentId) {
+    // 1. Fetch the Agent/User once (better to handle Optional, but keeping your original style for now)
+        Users agent = userRepo.findById(agentId)
+                            .orElseThrow(() -> new IllegalArgumentException("Agent not found"));
+
+        // 2. Fetch all existing media production requests for the agent
+        List<MediaProduction> mpList = mpRepo.findByRequesterUserIdAndPhotoshoot(agentId, true);
+
+        // 3. Create Sets for fast lookup of property IDs that ALREADY have a request
+        Set<Integer> residentialRequestedIds = mpList.stream()
+                .filter(mp -> "residential".equalsIgnoreCase(mp.getPropertyCategory()))
+                .map(MediaProduction::getPropertyId)
+                .collect(Collectors.toSet());
+        System.out.println("getPropertiesToRequestShoot - residentialRequestedIds::: "+residentialRequestedIds);       
+
+        Set<Integer> commercialRequestedIds = mpList.stream()
+                .filter(mp -> "commercial".equalsIgnoreCase(mp.getPropertyCategory()))
+                .map(MediaProduction::getPropertyId)
+                .collect(Collectors.toSet());
+        System.out.println("getPropertiesToRequestShoot - commercialRequestedIds::: "+commercialRequestedIds);  
+
+        // 4. Fetch all properties owned by the agent
+        List<ResidentialPropertyDetails> resPropList = rRepo.findByResidentialOwnerAndExpiredAndSold(agent, false, false);
+        List<CommercialPropertyDetails> comPropList = cRepo.findByCommercialOwnerAndExpiredAndSold(agent, false, false);
+
+        // 5. Filter the properties using the Sets (O(1) lookups)
+        List<ResidentialPropertyDetails> resPropFinalList = resPropList.stream()
+                .filter(rpd -> !residentialRequestedIds.contains(rpd.getListingId()))
+                .collect(Collectors.toList());
+
+        List<CommercialPropertyDetails> comPropFinalList = comPropList.stream()
+                .filter(cpd -> !commercialRequestedIds.contains(cpd.getListingId()))
+                .collect(Collectors.toList());
+
+        // 6. Build and return the response
+        Map<String, List<?>> response = new HashMap<>();
+        response.put("Residential", ResidentialPropertyMapper.toDtoList(resPropFinalList));
+        response.put("Commercial", CommercialPropertyMapper.toDtoList(comPropFinalList));
+        return response;
+    }
+
+    // public Map<String,List<?>> getPropertiesToRequestGraphicShoot(Integer agentId){
+    //     Users agent = userRepo.findById(agentId)
+    //                         .orElseThrow(() -> new IllegalArgumentException("Agent not found"+agentId));
+    //     List<ResidentialPropertyDetails> resPropList = new ArrayList<>();
+    //     List<CommercialPropertyDetails> comPropList = new ArrayList<>();
+    //     List<MediaProduction> mpList = mpRepo.findByRequesterUserIdAndGraphics(agentId,false);
+
+    //     for(MediaProduction mp : mpList){
+    //         if(mp.getPropertyCategory().equalsIgnoreCase("residential")){
+    //             ResidentialPropertyDetails r = rRepo.findByListingIdAndResidentialOwnerAndExpiredAndSold(mp.getPropertyId(),agent, false, false).orElseThrow(() -> new IllegalArgumentException("Property not found"+mp.getPropertyId()));
+    //             resPropList.add(r);
+    //         } else {
+    //             CommercialPropertyDetails c = cRepo.findByListingIdAndCommercialOwnerAndExpiredAndSold(mp.getPropertyId(),agent, false, false).orElseThrow(() -> new IllegalArgumentException("Property not found"+mp.getPropertyId()));
+    //             comPropList.add(c);
+    //         }
+    //     }
+    //     Map<String,List<?>> response = new HashMap<>();
+    //     response.put("Residential",ResidentialPropertyMapper.toDtoList(resPropList));
+    //     response.put("Commercial",CommercialPropertyMapper.toDtoList(comPropList));
+    //     return response;
     
+    // }
+
+    // public Map<String,List<?>> getPropertiesToRequestPhotoshoot(Integer agentId){
+    //     Users agent = userRepo.findById(agentId)
+    //                         .orElseThrow(() -> new IllegalArgumentException("Agent not found"+agentId));
+    //     List<ResidentialPropertyDetails> resPropList = new ArrayList<>();
+    //     List<CommercialPropertyDetails> comPropList = new ArrayList<>();
+    //     List<MediaProduction> mpList = mpRepo.findByRequesterUserIdAndPhotoshoot(agentId, false);
+
+    //     for(MediaProduction mp : mpList){
+    //         if(mp.getPropertyCategory().equalsIgnoreCase("residential")){
+    //             ResidentialPropertyDetails r = rRepo.findByListingIdAndResidentialOwnerAndExpiredAndSold(mp.getPropertyId(),agent, false, false).orElseThrow(() -> new IllegalArgumentException("Property not found"+mp.getPropertyId()));
+    //             resPropList.add(r);
+    //         } else {
+    //             CommercialPropertyDetails c = cRepo.findByListingIdAndCommercialOwnerAndExpiredAndSold(mp.getPropertyId(),agent, false, false).orElseThrow(() -> new IllegalArgumentException("Property not found"+mp.getPropertyId()));
+    //             comPropList.add(c);
+    //         }
+    //     }
+    //     Map<String,List<?>> response = new HashMap<>();
+    //     response.put("Residential",ResidentialPropertyMapper.toDtoList(resPropList));
+    //     response.put("Commercial",CommercialPropertyMapper.toDtoList(comPropList));
+    //     return response;
+    
+    // }
+
+    @Transactional
+    public List<MediaProduction> addMediaProductionGraphicsRequestFromAgent(List<MediaProductionGraphicsRequest> reqList, Integer agentId) {
+        List<MediaProduction> mpList = new ArrayList<>();
+        for(MediaProductionGraphicsRequest req : reqList) {
+            if(mpRepo.findByRequesterUserIdAndPropertyCategoryAndPropertyId(agentId,req.getPropertyCategory(),req.getPropertyId()).isPresent()){
+                MediaProduction mpdata = mpRepo.findByRequesterUserIdAndPropertyCategoryAndPropertyId(agentId,req.getPropertyCategory(),req.getPropertyId()).get();
+                mpdata.setGraphics(req.getGraphics());
+                mpdata.setRequesterUserId(agentId);
+                mpdata.setPropertyCategory(req.getPropertyCategory());
+                mpdata.setPropertyId(req.getPropertyId());
+                mpRepo.save(mpdata);
+            }else{
+                MediaProduction mp = new MediaProduction();
+                mp.setGraphics(req.getGraphics());
+                mp.setPhotoshoot(false);
+                mp.setRequesterUserId(agentId);
+                mp.setPropertyCategory(req.getPropertyCategory());
+                mp.setPropertyId(req.getPropertyId());
+                mpRepo.save(mp);
+            }
+        }
+        return mpList;
+    }
+
+    @Transactional
+    public List<MediaProduction> addMediaProductionPhotoshootRequestFromAgent(List<MediaProductionPhotoshootRequest> reqList, Integer agentId) {
+        List<MediaProduction> mpList = new ArrayList<>();
+        for(MediaProductionPhotoshootRequest req : reqList) {
+            if(mpRepo.findByRequesterUserIdAndPropertyCategoryAndPropertyId(agentId,req.getPropertyCategory(),req.getPropertyId()).isPresent()){
+                MediaProduction mpdata = mpRepo.findByRequesterUserIdAndPropertyCategoryAndPropertyId(agentId,req.getPropertyCategory(),req.getPropertyId()).get();
+                mpdata.setPhotoshoot(req.getPhotoshoot());
+                mpdata.setRequesterUserId(agentId);
+                mpdata.setPropertyCategory(req.getPropertyCategory());
+                mpdata.setPropertyId(req.getPropertyId());
+                mpRepo.save(mpdata);
+            }else{
+                MediaProduction mp = new MediaProduction();
+                mp.setGraphics(false);
+                mp.setPhotoshoot(req.getPhotoshoot());
+                mp.setRequesterUserId(agentId);
+                mp.setPropertyCategory(req.getPropertyCategory());
+                mp.setPropertyId(req.getPropertyId());
+                mpRepo.save(mp);
+            }
+        }
+        return mpList;
+    }
 }

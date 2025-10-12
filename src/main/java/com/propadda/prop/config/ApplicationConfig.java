@@ -83,7 +83,7 @@ public class ApplicationConfig {
                 // public endpoints
                 .requestMatchers("/auth/login", "/auth/register").permitAll()
                 .requestMatchers("/user/**", "/public/**", "/properties/**").permitAll()
-
+                .requestMatchers("/auth/forgot-password", "/auth/reset-password").permitAll()
                 // protected areas
                 .requestMatchers("/admin/**").hasRole("ADMIN")
                 .requestMatchers("/agent/**").hasAnyRole("AGENT","ADMIN")

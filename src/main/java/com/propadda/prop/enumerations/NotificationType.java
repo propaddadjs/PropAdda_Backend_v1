@@ -1,7 +1,7 @@
 package com.propadda.prop.enumerations;
 
 public enum NotificationType {
-    ListingAcknowledgement, //for Buyer: Thanks! Your property ‘{Title}’ was received and is pending approval.
+    ListingAcknowledgement, //for Seller: Thanks! Your property ‘{Title}’ was received and is pending approval.
     ListingApproval, //for Seller: Great news! ‘{Title}’ is live. View.
     ListingRejection, //for Seller: {Title}’ was not approved for: {Reason}. Please edit & resubmit.
     BuyerAcknowledgement, //for Buyer: We’ve received your enquiry for ‘{Title}’. Our team will contact you shortly.

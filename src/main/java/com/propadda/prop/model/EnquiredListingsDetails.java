@@ -1,9 +1,12 @@
 package com.propadda.prop.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.propadda.prop.enumerations.EnquiryStatus;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -46,6 +49,10 @@ public class EnquiredListingsDetails {
 
     @Column(name="buyer_reason_detail", columnDefinition = "TEXT")
     private String buyerReasonDetail;
+
+    @Column(name="enquiry_status")
+    @Enumerated(EnumType.STRING)
+    private EnquiryStatus enquiryStatus;
 
     public Integer getEnquiryId() {
         return enquiryId;
@@ -117,6 +124,14 @@ public class EnquiredListingsDetails {
 
     public void setBuyerReasonDetail(String buyerReasonDetail) {
         this.buyerReasonDetail = buyerReasonDetail;
+    }
+
+    public EnquiryStatus getEnquiryStatus() {
+        return enquiryStatus;
+    }
+
+    public void setEnquiryStatus(EnquiryStatus enquiryStatus) {
+        this.enquiryStatus = enquiryStatus;
     }
 
     

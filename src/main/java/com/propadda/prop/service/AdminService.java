@@ -13,8 +13,11 @@ import org.springframework.stereotype.Service;
 
 import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.dto.CommercialPropertyResponse;
+import com.propadda.prop.dto.LeadsResponse;
+import com.propadda.prop.dto.MediaProductionResponse;
 import com.propadda.prop.dto.ResidentialPropertyResponse;
 import com.propadda.prop.dto.UserResponse;
+import com.propadda.prop.enumerations.EnquiryStatus;
 import com.propadda.prop.enumerations.Kyc;
 import com.propadda.prop.enumerations.NotificationType;
 import com.propadda.prop.enumerations.RejectionType;
@@ -25,11 +28,15 @@ import com.propadda.prop.mappers.CommercialPropertyMapper;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.mappers.UserMapper;
 import com.propadda.prop.model.CommercialPropertyDetails;
+import com.propadda.prop.model.EnquiredListingsDetails;
+import com.propadda.prop.model.MediaProduction;
 import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.model.RejectionDetails;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
+import com.propadda.prop.repo.EnquiredListingsDetailsRepo;
+import com.propadda.prop.repo.MediaProductionRepo;
 import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.RejectionDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
@@ -54,6 +61,12 @@ public class AdminService {
 
     @Autowired
     NotificationDetailsRepository notificationRepo;
+
+    @Autowired
+    EnquiredListingsDetailsRepo enqRepo;
+
+    @Autowired
+    MediaProductionRepo mpRepo;
 
     public Map<String,List<?>> getAllProperties(){
         
@@ -2331,7 +2344,7 @@ public class AdminService {
         metrics.put("totalProperties",cpdRepo.count()+rpdRepo.count());
         metrics.put("totalSellers",userRepo.countByRole(Role.AGENT));
         metrics.put("totalBuyers",userRepo.count());
-        metrics.put("totalEnquiries",0L);
+        metrics.put("totalEnquiries",enqRepo.countByEnquiryStatus(EnquiryStatus.CREATED)+enqRepo.countByEnquiryStatus(EnquiryStatus.ASSIGNED));
         return metrics;
     }
 
@@ -2375,4 +2388,114 @@ public class AdminService {
         }
         return notificationRepo.findByNotificationReceiverRole(Role.ADMIN);
     }
+
+    public List<LeadsResponse> getCreatedLeads(){
+        List<EnquiredListingsDetails> enqiries = enqRepo.findByEnquiryStatus(EnquiryStatus.CREATED);
+        List<LeadsResponse> enqResponseList = new ArrayList<>();
+        for(EnquiredListingsDetails e : enqiries){
+            LeadsResponse lr = new LeadsResponse();
+            lr.setEnquiryId(e.getEnquiryId());
+            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get()));
+            lr.setBuyerName(e.getBuyerName());
+            lr.setBuyerPhoneNumber(e.getBuyerPhoneNumber());
+            lr.setBuyerType(e.getBuyerType());
+            lr.setBuyerReason(e.getBuyerReason());
+            lr.setBuyerReasonDetail(e.getBuyerReasonDetail());
+            lr.setEnquiryStatus(e.getEnquiryStatus());
+            
+            if(e.getPropertyCategory().equalsIgnoreCase("commercial")){
+                lr.setComResponse(CommercialPropertyMapper.toDto(cpdRepo.findById(e.getPropertyId()).get()));
+            } else {
+                lr.setResResponse(ResidentialPropertyMapper.toDto(rpdRepo.findById(e.getPropertyId()).get()));
+            }
+            enqResponseList.add(lr);
+        }
+        return enqResponseList;
+    }
+
+    public List<LeadsResponse> getAssignedLeads(){
+        List<EnquiredListingsDetails> enqiries = enqRepo.findByEnquiryStatus(EnquiryStatus.ASSIGNED);
+        List<LeadsResponse> enqResponseList = new ArrayList<>();
+        for(EnquiredListingsDetails e : enqiries){
+            LeadsResponse lr = new LeadsResponse();
+            lr.setEnquiryId(e.getEnquiryId());
+            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get()));
+            lr.setBuyerName(e.getBuyerName());
+            lr.setBuyerPhoneNumber(e.getBuyerPhoneNumber());
+            lr.setBuyerType(e.getBuyerType());
+            lr.setBuyerReason(e.getBuyerReason());
+            lr.setBuyerReasonDetail(e.getBuyerReasonDetail());
+            lr.setEnquiryStatus(e.getEnquiryStatus());
+            
+            if(e.getPropertyCategory().equalsIgnoreCase("commercial")){
+                lr.setComResponse(CommercialPropertyMapper.toDto(cpdRepo.findById(e.getPropertyId()).get()));
+            } else {
+                lr.setResResponse(ResidentialPropertyMapper.toDto(rpdRepo.findById(e.getPropertyId()).get()));
+            }
+            enqResponseList.add(lr);
+        }
+        return enqResponseList;
+    }
+
+    @Transactional
+    public EnquiredListingsDetails markLeadAsAssigned(Integer enquiryId){
+        EnquiredListingsDetails e = enqRepo.findById(enquiryId).orElseThrow(() -> new IllegalArgumentException("Enquiry not found: " + enquiryId));
+        e.setEnquiryStatus(EnquiryStatus.ASSIGNED);
+        enqRepo.save(e);
+        return e;
+    }
+
+    @Transactional
+    public EnquiredListingsDetails markLeadAsRemoved(Integer enquiryId){
+        EnquiredListingsDetails e = enqRepo.findById(enquiryId).orElseThrow(() -> new IllegalArgumentException("Enquiry not found: " + enquiryId));
+        e.setEnquiryStatus(EnquiryStatus.REMOVED);
+        enqRepo.save(e);
+        return e;
+    }
+
+    @Transactional
+    public EnquiredListingsDetails markLeadAsSold(Integer enquiryId){
+        EnquiredListingsDetails e = enqRepo.findById(enquiryId).orElseThrow(() -> new IllegalArgumentException("Enquiry not found: " + enquiryId));
+        e.setEnquiryStatus(EnquiryStatus.SOLD);
+        enqRepo.save(e);
+        if(e.getPropertyCategory().equalsIgnoreCase("commercial")){
+            CommercialPropertyDetails cpd = cpdRepo.findById(e.getPropertyId()).orElseThrow(() -> new IllegalArgumentException("Property not found: " + e.getPropertyId()));
+            cpd.setSold(true);
+            cpdRepo.save(cpd);
+        } else {
+            ResidentialPropertyDetails rpd = rpdRepo.findById(e.getPropertyId()).orElseThrow(() -> new IllegalArgumentException("Property not found: " + e.getPropertyId()));
+            rpd.setSold(true);
+            rpdRepo.save(rpd);
+        }
+        return e;
+    }
+
+    @Transactional
+    public EnquiredListingsDetails markLeadAsNotInterested(Integer enquiryId){
+        EnquiredListingsDetails e = enqRepo.findById(enquiryId).orElseThrow(() -> new IllegalArgumentException("Enquiry not found: " + enquiryId));
+        e.setEnquiryStatus(EnquiryStatus.NOT_INTERESTED);
+        enqRepo.save(e);
+        return e;
+    }
+
+    public List<MediaProductionResponse> getMediaProductionRequests(){
+        List<MediaProduction> mpList = mpRepo.findAll();
+        List<MediaProductionResponse> mpResList = new ArrayList<>();
+        for(MediaProduction mp : mpList){
+            MediaProductionResponse mpRes = new MediaProductionResponse();
+            mpRes.setMediaProductionId(mp.getMediaProductionId());
+            mpRes.setGraphics(mp.getGraphics());
+            mpRes.setPhotoshoot(mp.getPhotoshoot());
+            mpRes.setAgent(AgentMapper.toDto(userRepo.findById(mp.getRequesterUserId()).get()));
+
+            if(mp.getPropertyCategory().equalsIgnoreCase("commercial")){
+                mpRes.setComResponse(CommercialPropertyMapper.toDto(cpdRepo.findById(mp.getPropertyId()).get()));
+            } else {
+                mpRes.setResResponse(ResidentialPropertyMapper.toDto(rpdRepo.findById(mp.getPropertyId()).get()));
+            }
+            mpResList.add(mpRes);
+        }
+        return mpResList;
+    }
+
 }
