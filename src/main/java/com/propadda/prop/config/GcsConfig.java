@@ -10,6 +10,7 @@ import com.google.cloud.storage.StorageOptions;
  * Exposes a Storage bean built from application environment credentials.
  * Make sure GOOGLE_APPLICATION_CREDENTIALS points to a valid service-account JSON file
  * or provide credentials some other secure way.
+ * ADDING TO ENABLE REBUILD
  */
 @Configuration
 public class GcsConfig {
