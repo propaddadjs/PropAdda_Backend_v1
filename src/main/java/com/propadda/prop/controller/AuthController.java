@@ -2,6 +2,7 @@ package com.propadda.prop.controller;
 
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,12 +25,14 @@ import com.propadda.prop.repo.UsersRepo;
 import com.propadda.prop.security.CustomUserDetailsService;
 import com.propadda.prop.service.UserService;
 
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
+
+    @Value("${app.frontend.url}")
+    private String frontendUrl;
 
     private final UsersRepo uRepo;
     private final UserService users;
@@ -81,10 +84,10 @@ public class AuthController {
     }
 
     @PostMapping("/forgot-password")
-    public ResponseEntity<?> forgot(@RequestBody ForgotPasswordRequest req, HttpServletRequest http) {
+    public ResponseEntity<?> forgot(@RequestBody ForgotPasswordRequest req) {
         // Derive app base URL for link
-        String baseUrl = String.format("%s://%s", http.getScheme(), http.getHeader("Host"));
-        users.sendResetLink(req.getEmail(), baseUrl);
+        // String baseUrl = String.format("%s://%s", http.getScheme(), http.getHeader("Host"));
+        users.sendResetLink(req.getEmail(), frontendUrl);
         return ResponseEntity.ok().build();
     }
 

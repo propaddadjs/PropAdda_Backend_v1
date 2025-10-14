@@ -34,6 +34,7 @@ import com.propadda.prop.dto.ResidentialPropertyResponse;
 import com.propadda.prop.dto.UserRequest;
 import com.propadda.prop.dto.UserResponse;
 import com.propadda.prop.enumerations.Kyc;
+import com.propadda.prop.enumerations.NotificationType;
 import com.propadda.prop.enumerations.Role;
 import com.propadda.prop.exceptions.ResourceNotFoundException;
 import com.propadda.prop.mappers.AgentMapper;
@@ -43,11 +44,13 @@ import com.propadda.prop.mappers.UserMapper;
 import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.model.FeedbackDetails;
 import com.propadda.prop.model.HelpDetails;
+import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
 import com.propadda.prop.repo.FeedbackDetailsRepo;
 import com.propadda.prop.repo.HelpDetailsRepo;
+import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
@@ -73,6 +76,12 @@ public class UserService {
 
     @Autowired
     private GcsService gcsService;
+
+    @Autowired
+    private MailSenderService mailService;
+    
+    @Autowired
+    NotificationDetailsRepository notificationRepo;
     
     private final UsersRepo userRepo;
     private final PasswordEncoder encoder;
@@ -1108,6 +1117,23 @@ public class UserService {
         // u.setRole(Role.AGENT);                 // becomes agent
         u.setKycVerified(Kyc.PENDING);         // pending approval
         userRepo.save(u);
+
+        //notification flow for admin
+        NotificationDetails notification = new NotificationDetails();
+        String message = "User - "+u.getEmail()+" added KYC details. Approve/Reject";
+        notification.setNotificationType(NotificationType.KycApprovalRequest);
+        notification.setNotificationMessage(message);
+        notification.setNotificationReceiverId(1);
+        notification.setNotificationReceiverRole(Role.ADMIN);
+        notification.setNotificationSenderId(u.getUserId());
+        notification.setNotificationSenderRole(Role.AGENT);
+        notificationRepo.save(notification);
+
+        //email flow for admin
+        String toAdmin = "propaddadjs@gmail.com";
+        String subjectAdmin = "KYC Request";
+        String bodyAdmin = "User - "+u.getEmail()+" added KYC details. Approve/Reject";
+        mailService.send(toAdmin, subjectAdmin, bodyAdmin);
     }
 
         @Transactional

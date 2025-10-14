@@ -16,8 +16,8 @@ public class MailSenderService {
 
     private final JavaMailSender mailSender;
 
-    // @Value("${app.mail.from}")
-    // private String from;
+    @Value("${app.mail.from}")
+    private String from;
 
     public MailSenderService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
@@ -28,7 +28,7 @@ public class MailSenderService {
     public void send(String to, String subject, String body) {
         log.info("Sending mail to {} | {} | {}", to, subject, body);
          SimpleMailMessage msg = new SimpleMailMessage();
-        // msg.setFrom(from);
+        msg.setFrom(from);
         msg.setTo(to);
         msg.setSubject(subject);
         msg.setText(body);

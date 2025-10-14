@@ -68,6 +68,9 @@ public class AdminService {
     @Autowired
     MediaProductionRepo mpRepo;
 
+    @Autowired
+    private MailSenderService mailService;
+
     public Map<String,List<?>> getAllProperties(){
         
         List<ResidentialPropertyDetails> rpd = rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
@@ -1979,6 +1982,8 @@ public class AdminService {
                     p.setAdminApproved("Approved");
                     p.setApprovedAt(OffsetDateTime.now());
                     rpdRepo.save(p);
+
+                    //notification flow
                     NotificationDetails notification = new NotificationDetails();
                     String message = "Great news! Your listing titled "+p.getTitle()+" is live.";
                     notification.setNotificationType(NotificationType.ListingApproval);
@@ -1988,6 +1993,12 @@ public class AdminService {
                     notification.setNotificationSenderId(1);
                     notification.setNotificationSenderRole(Role.ADMIN);
                     notificationRepo.save(notification);
+
+                    //email flow
+                    String to = p.getResidentialOwner().getEmail();
+                    String subject = "Approved- "+p.getTitle();
+                    String body = "Great news! Your listing titled "+p.getTitle()+" is live.";
+                    mailService.send(to, subject, body);
                     return true;
                 }
                 return false;
@@ -1998,15 +2009,24 @@ public class AdminService {
                     p.setAdminApproved("Approved");
                     p.setApprovedAt(OffsetDateTime.now());
                     cpdRepo.save(p);
+
+                    //notification flow
                     NotificationDetails notification = new NotificationDetails();
                     String message = "Great news! Your listing titled "+p.getTitle()+" is live.";
-                    notification.setNotificationType(NotificationType.ListingRejection);
+                    notification.setNotificationType(NotificationType.ListingApproval);
                     notification.setNotificationMessage(message);
                     notification.setNotificationReceiverId(p.getCommercialOwner().getUserId());
                     notification.setNotificationReceiverRole(Role.AGENT);
                     notification.setNotificationSenderId(1);
                     notification.setNotificationSenderRole(Role.ADMIN);
                     notificationRepo.save(notification);
+
+                    //email flow
+                    String to = p.getCommercialOwner().getEmail();
+                    String subject = "Approved- "+p.getTitle();
+                    String body = "Great news! Your listing titled "+p.getTitle()+" is live.";
+                    mailService.send(to, subject, body);
+
                     return true;
                 }
                 return false;
@@ -2054,6 +2074,7 @@ public class AdminService {
                     rejection.setAgentId(p.getResidentialOwner().getUserId());
                     rejection.setListingId(listingId);
 
+                    //notification flow
                     NotificationDetails notification = new NotificationDetails();
                     String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
                     notification.setNotificationType(NotificationType.ListingRejection);
@@ -2067,6 +2088,12 @@ public class AdminService {
                     rejection.setAgentNotified(true);
                     rejection.setAgentEmailed(false);
                     rejectionRepo.save(rejection);
+
+                    //email flow
+                    String to = p.getResidentialOwner().getEmail();
+                    String subject = "Rejected- "+p.getTitle();
+                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    mailService.send(to, subject, body);
 
                     return true;
                 }
@@ -2083,6 +2110,7 @@ public class AdminService {
                     rejection.setAgentId(p.getCommercialOwner().getUserId());
                     rejection.setListingId(listingId);
 
+                    //notification flow
                     NotificationDetails notification = new NotificationDetails();
                     String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
                     notification.setNotificationType(NotificationType.ListingRejection);
@@ -2096,6 +2124,12 @@ public class AdminService {
                     rejection.setAgentNotified(true);
                     rejection.setAgentEmailed(false);
                     rejectionRepo.save(rejection);
+
+                    //email flow
+                    String to = p.getCommercialOwner().getEmail();
+                    String subject = "Rejected- "+p.getTitle();
+                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    mailService.send(to, subject, body);
 
                     return true;
                 }
@@ -2151,6 +2185,7 @@ public class AdminService {
             cpd.setExpired(false);
             cpd.setAdminApproved("Pending");
             cpdRepo.save(cpd);
+            //notification flow
             NotificationDetails notification = new NotificationDetails();
             String message = "Your listing titled- "+cpd.getTitle()+" has been renewed.";
             notification.setNotificationType(NotificationType.RenewedListing);
@@ -2160,6 +2195,13 @@ public class AdminService {
             notification.setNotificationSenderId(1);
             notification.setNotificationSenderRole(Role.ADMIN);
             notificationRepo.save(notification);
+
+            //email flow
+            String to = cpd.getCommercialOwner().getEmail();
+            String subject = "Renewed- "+cpd.getTitle();
+            String body = "Your listing titled- "+cpd.getTitle()+" has been renewed.";
+            mailService.send(to, subject, body);
+
             return cpd;
         }
         else
@@ -2177,6 +2219,13 @@ public class AdminService {
             notification.setNotificationSenderId(1);
             notification.setNotificationSenderRole(Role.ADMIN);
             notificationRepo.save(notification);
+
+            //email flow
+            String to = rpd.getResidentialOwner().getEmail();
+            String subject = "Renewed- "+rpd.getTitle();
+            String body = "Your listing titled- "+rpd.getTitle()+" has been renewed.";
+            mailService.send(to, subject, body);
+            
             return rpd;
         }
         else {
@@ -2188,6 +2237,8 @@ public class AdminService {
     public Object notifyDealer(Integer listingId, String category) {
         if(category.equalsIgnoreCase("Commercial") && cpdRepo.findById(listingId).isPresent()){
             CommercialPropertyDetails cpd = cpdRepo.findById(listingId).get();
+
+            //notification flow
             NotificationDetails notification = new NotificationDetails();
             String message = "Your listing titled- "+cpd.getTitle()+" has expired. Please renew it from your Agent Dashboard.";
             notification.setNotificationMessage(message);
@@ -2197,11 +2248,20 @@ public class AdminService {
             notification.setNotificationSenderId(1);
             notification.setNotificationSenderRole(Role.ADMIN);
             notificationRepo.save(notification);
+
+            //email flow
+            String to = cpd.getCommercialOwner().getEmail();
+            String subject = "Expired- "+cpd.getTitle();
+            String body = "Your listing titled- "+cpd.getTitle()+" has expired. Please renew it from your Agent Dashboard.";
+            mailService.send(to, subject, body);
+
             return cpd;
         }
         else
         if(category.equalsIgnoreCase("Residential") && rpdRepo.findById(listingId).isPresent()){
             ResidentialPropertyDetails rpd = rpdRepo.findById(listingId).get();
+
+            //notification flow
             NotificationDetails notification = new NotificationDetails();
             notification.setNotificationType(NotificationType.ExpiredListing);
             String message = "Your listing titled- "+rpd.getTitle()+" has expired. Please renew it from your Agent Dashboard.";
@@ -2211,6 +2271,12 @@ public class AdminService {
             notification.setNotificationSenderId(1);
             notification.setNotificationSenderRole(Role.ADMIN);
             notificationRepo.save(notification);
+
+            //email flow
+            String to = rpd.getResidentialOwner().getEmail();
+            String subject = "Expired- "+rpd.getTitle();
+            String body = "Your listing titled- "+rpd.getTitle()+" has expired. Please renew it from your Agent Dashboard.";
+            mailService.send(to, subject, body);
             return rpd;
         }
         else {
@@ -2311,6 +2377,24 @@ public class AdminService {
             user.setKycVerified(Kyc.APPROVED);
             user.setRole(Role.AGENT);
             userRepo.save(user);
+
+            //notification flow
+            NotificationDetails notification = new NotificationDetails();
+            String message = "Great news! KYC approved. Add properties now.";
+            notification.setNotificationType(NotificationType.KycApproved);
+            notification.setNotificationMessage(message);
+            notification.setNotificationReceiverId(user.getUserId());
+            notification.setNotificationReceiverRole(Role.AGENT);
+            notification.setNotificationSenderId(1);
+            notification.setNotificationSenderRole(Role.ADMIN);
+            notificationRepo.save(notification);
+
+            //email flow
+            String to = user.getEmail();
+            String subject = "KYC Approved";
+            String body = "Great news! KYC approved. Add properties now.";
+            mailService.send(to, subject, body);
+
             return true;
         }
         else {
@@ -2326,12 +2410,30 @@ public class AdminService {
             u.setKycVerified(Kyc.REJECTED);
             userRepo.save(u);
             RejectionDetails rejection = new RejectionDetails();
-                    rejection.setRejectionType(RejectionType.KYC);
-                    rejection.setRejectionReason(reason);
-                    rejection.setAgentId(userId);
-                    rejection.setAgentNotified(false);
-                    rejection.setAgentEmailed(false);
-                    rejectionRepo.save(rejection);
+            rejection.setRejectionType(RejectionType.KYC);
+            rejection.setRejectionReason(reason);
+            rejection.setAgentId(userId);
+            rejection.setAgentNotified(false);
+            rejection.setAgentEmailed(false);
+            rejectionRepo.save(rejection);
+
+                        //notification flow
+            NotificationDetails notification = new NotificationDetails();
+            String message = "KYC was not approved for: "+reason+" Please edit & resubmit.";
+            notification.setNotificationType(NotificationType.KycRejected);
+            notification.setNotificationMessage(message);
+            notification.setNotificationReceiverId(u.getUserId());
+            notification.setNotificationReceiverRole(Role.AGENT);
+            notification.setNotificationSenderId(1);
+            notification.setNotificationSenderRole(Role.ADMIN);
+            notificationRepo.save(notification);
+
+            //email flow
+            String to = u.getEmail();
+            String subject = "KYC Rejected";
+            String body = "KYC was not approved for: "+reason+" Please edit & resubmit.";
+            mailService.send(to, subject, body);
+
             return true;
         }
         else {

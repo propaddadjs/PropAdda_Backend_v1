@@ -10,14 +10,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.propadda.prop.dto.ResidentialPropertyRequest;
+import com.propadda.prop.enumerations.NotificationType;
 import com.propadda.prop.enumerations.Role;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
+import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.model.ResidentialPropertyAmenities;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.ResidentialPropertyMedia;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.EnquiredListingsDetailsRepo;
 import com.propadda.prop.repo.FavoriteListingsDetailsRepo;
+import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
@@ -34,6 +37,12 @@ public class ResidentialPropertyDetailsService {
 
     @Autowired
     private EnquiredListingsDetailsRepo enqRepo;
+
+    @Autowired
+    private NotificationDetailsRepository notificationRepo;
+
+    @Autowired
+    private MailSenderService mailService;
 
     private final ResidentialPropertyDetailsRepo repository;
     private final GcsService gcsService;
@@ -69,7 +78,9 @@ public class ResidentialPropertyDetailsService {
             }
         }
         
-        Integer order = 1;
+        Integer orderImage = 1;
+        Integer orderVideo = 11;
+        Integer orderBrochure = 21;
         List<ResidentialPropertyMedia> mediaFilesList = new ArrayList<>();
         for (MultipartFile file : files) {
             String url = gcsService.uploadFile(file,"residential");
@@ -82,19 +93,21 @@ public class ResidentialPropertyDetailsService {
             String contentType = file.getContentType();
             if (contentType != null && contentType.startsWith("video/")) {
                 media.setMediaType(ResidentialPropertyMedia.MediaType.VIDEO);
-                media.setOrd(0);
+                media.setOrd(orderVideo);
+                orderVideo++;
             } else 
             if(contentType != null && contentType.startsWith("image/")) {
                 media.setMediaType(ResidentialPropertyMedia.MediaType.IMAGE);
-                media.setOrd(order);
-                order++;
+                media.setOrd(orderImage);
+                orderImage++;
             } else 
             if(contentType != null && (contentType.startsWith("application/") || contentType.startsWith("text/"))){
                 media.setMediaType(ResidentialPropertyMedia.MediaType.BROCHURE);
-                media.setOrd(-1);
+                media.setOrd(orderBrochure);
+                orderBrochure++;
             } else {
                 media.setMediaType(ResidentialPropertyMedia.MediaType.OTHER);
-                media.setOrd(-2);
+                media.setOrd(0);
             }
         mediaFilesList.add(media);
         }
@@ -105,7 +118,43 @@ public class ResidentialPropertyDetailsService {
         propDetails.setExpired(false);
         propDetails.setReraVerified(false);
         propDetails.setAdminApproved("Pending");
-        return repository.save(propDetails);
+        repository.save(propDetails);
+
+        //notification flow
+        NotificationDetails notification = new NotificationDetails();
+            notification.setNotificationType(NotificationType.ListingAcknowledgement);
+            String message = "Thanks! Your property titled- "+property.getTitle()+" was received and is pending for approval.";
+            notification.setNotificationMessage(message);
+            notification.setNotificationReceiverId(property.getResidentialOwnerId());
+            notification.setNotificationReceiverRole(Role.AGENT);
+            notification.setNotificationSenderId(1);
+            notification.setNotificationSenderRole(Role.ADMIN);
+            notificationRepo.save(notification);
+        
+        //email flow
+        String to = propDetails.getResidentialOwner().getEmail();
+        String subject = "Received- "+property.getTitle();
+        String body = "Thanks! Your property titled- "+property.getTitle()+" was received and is pending for approval.";
+        mailService.send(to, subject, body);
+
+        //notification flow for admin
+        NotificationDetails notificationAdmin = new NotificationDetails();
+        String messageAdmin = "New Property titled- "+property.getTitle()+" added. Approve/Reject";
+        notificationAdmin.setNotificationType(NotificationType.ListingApprovalRequest);
+        notificationAdmin.setNotificationMessage(messageAdmin);
+        notificationAdmin.setNotificationReceiverId(1);
+        notificationAdmin.setNotificationReceiverRole(Role.ADMIN);
+        notificationAdmin.setNotificationSenderId(property.getResidentialOwnerId());
+        notificationAdmin.setNotificationSenderRole(Role.AGENT);
+        notificationRepo.save(notificationAdmin);
+
+        //email flow for admin
+        String toAdmin = "propaddadjs@gmail.com";
+        String subjectAdmin = "New Listing Added";
+        String bodyAdmin = "New Property titled- "+property.getTitle()+" added. Approve/Reject";
+        mailService.send(toAdmin, subjectAdmin, bodyAdmin);
+
+        return propDetails;
     }
 
     // Get all properties
@@ -291,7 +340,43 @@ public class ResidentialPropertyDetailsService {
         updated.setReraVerified(false);
         updated.setAdminApproved("Pending");
 
-        return repository.save(updated);
+        repository.save(updated);
+
+        //notification flow
+        NotificationDetails notification = new NotificationDetails();
+            notification.setNotificationType(NotificationType.ListingAcknowledgement);
+            String message = "Thanks! Your property titled- "+property.getTitle()+" was received after update and is pending for approval.";
+            notification.setNotificationMessage(message);
+            notification.setNotificationReceiverId(agentId);
+            notification.setNotificationReceiverRole(Role.AGENT);
+            notification.setNotificationSenderId(1);
+            notification.setNotificationSenderRole(Role.ADMIN);
+            notificationRepo.save(notification);
+        
+        //email flow
+        String to = updated.getResidentialOwner().getEmail();
+        String subject = "Updated- "+property.getTitle();
+        String body = "Thanks! Your property titled- "+property.getTitle()+" was received after update and is pending for approval.";
+        mailService.send(to, subject, body);
+
+        //notification flow for admin
+        NotificationDetails notificationAdmin = new NotificationDetails();
+        String messageAdmin = "Property titled- "+property.getTitle()+" updated. Approve/Reject";
+        notificationAdmin.setNotificationType(NotificationType.ListingApprovalRequest);
+        notificationAdmin.setNotificationMessage(messageAdmin);
+        notificationAdmin.setNotificationReceiverId(1);
+        notificationAdmin.setNotificationReceiverRole(Role.ADMIN);
+        notificationAdmin.setNotificationSenderId(agentId);
+        notificationAdmin.setNotificationSenderRole(Role.AGENT);
+        notificationRepo.save(notificationAdmin);
+
+        //email flow for admin
+        String toAdmin = "propaddadjs@gmail.com";
+        String subjectAdmin = "Listing Updated- "+property.getTitle();
+        String bodyAdmin = "Property titled- "+property.getTitle()+" updated. Approve/Reject";
+        mailService.send(toAdmin, subjectAdmin, bodyAdmin);
+
+        return updated;
     }
 
     @Transactional
