@@ -71,6 +71,7 @@ public class CommercialPropertyDetailsService {
             }
         }
         
+        if (files != null && !files.isEmpty()) {
         Integer orderImage = 1;
         Integer orderVideo = 11;
         Integer orderBrochure = 21;
@@ -104,8 +105,9 @@ public class CommercialPropertyDetailsService {
             }
         mediaFilesList.add(media);
         }
-        propDetails.setCategory("Commercial");
         propDetails.setCommercialPropertyMediaFiles(mediaFilesList);
+    }
+        propDetails.setCategory("Commercial");
         propDetails.setSold(false);
         propDetails.setVip(false);
         propDetails.setExpired(false);

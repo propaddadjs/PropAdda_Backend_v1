@@ -78,6 +78,7 @@ public class ResidentialPropertyDetailsService {
             }
         }
         
+        if(files!=null && !files.isEmpty()){
         Integer orderImage = 1;
         Integer orderVideo = 11;
         Integer orderBrochure = 21;
@@ -111,8 +112,10 @@ public class ResidentialPropertyDetailsService {
             }
         mediaFilesList.add(media);
         }
-        propDetails.setCategory("Residential");
+        
         propDetails.setResidentialPropertyMediaFiles(mediaFilesList);
+    }
+        propDetails.setCategory("Residential");
         propDetails.setSold(false);
         propDetails.setVip(false);
         propDetails.setExpired(false);

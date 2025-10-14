@@ -34,7 +34,7 @@ public class CommercialPropertyDetailsController {
 
     @PostMapping(value="/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommercialPropertyDetails> createProperty(
-            @RequestPart("property") CommercialPropertyRequest property, @RequestPart("files") List<MultipartFile> files) throws IOException {
+            @RequestPart("property") CommercialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files) throws IOException {
         System.out.println("Received DTO: " + property);
         return ResponseEntity.ok(service.saveProperty(property,files));
     }
