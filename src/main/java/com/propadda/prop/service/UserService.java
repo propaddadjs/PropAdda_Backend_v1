@@ -148,7 +148,8 @@ public class UserService {
                 u.getUserId(),
                 u.getFirstName(),
                 u.getLastName(),
-                u.getEmail()
+                u.getEmail(),
+                u.getProfileImageUrl()
         );
     }
 

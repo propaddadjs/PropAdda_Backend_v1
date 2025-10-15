@@ -54,7 +54,7 @@ public interface CommercialPropertyDetailsRepo extends JpaRepository<CommercialP
     List<CommercialPropertyDetails> filterByPreferenceAndLocation(@Param("preference") String preference, @Param("state") String state, @Param("city") String city,
              @Param("locality") String locality);
 
-    @Query("SELECT c FROM CommercialPropertyDetails c WHERE c.propertyType = 'Plot' AND c.state= :state AND c.city = :city AND c.locality LIKE CONCAT('%', :locality, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
+    @Query("SELECT c FROM CommercialPropertyDetails c WHERE c.propertyType = 'Plot/Land' AND c.state= :state AND c.city = :city AND c.locality LIKE CONCAT('%', :locality, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
     List<CommercialPropertyDetails> filterByPlotAndLocation(@Param("state") String state, @Param("city") String city, @Param("locality") String locality);
 
     @Query("SELECT COUNT(c) FROM CommercialPropertyDetails c WHERE c.city LIKE CONCAT('%', :city, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")

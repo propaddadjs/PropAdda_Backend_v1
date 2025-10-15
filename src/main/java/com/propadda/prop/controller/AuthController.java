@@ -64,7 +64,8 @@ public class AuthController {
                 u.getUserId(), u.getEmail(),
                 u.getRole(),
                 u.getFirstName(), u.getLastName(),
-                u.getKycVerified() != null ? u.getKycVerified().name() : null
+                u.getKycVerified() != null ? u.getKycVerified().name() : null,
+                u.getProfileImageUrl()
         );
     }
 

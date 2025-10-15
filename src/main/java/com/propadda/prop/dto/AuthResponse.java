@@ -10,5 +10,6 @@ public record AuthResponse(
         Role role,
         String firstName,
         String lastName,
-        String kycVerified
+        String kycVerified,
+        String profileImageUrl
 ) {}

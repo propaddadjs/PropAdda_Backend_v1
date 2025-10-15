@@ -64,7 +64,7 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
     List<ResidentialPropertyDetails> filterByPreferenceAndLocation(@Param("preference") String preference, @Param("state") String state, @Param("city") String city,
             @Param("locality") String locality);
 
-    @Query("SELECT r FROM ResidentialPropertyDetails r WHERE r.propertyType = 'Plot' AND r.state= :state AND r.city = :city AND r.locality LIKE CONCAT('%', :locality, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
+    @Query("SELECT r FROM ResidentialPropertyDetails r WHERE r.propertyType = 'Plot/Land' AND r.state= :state AND r.city = :city AND r.locality LIKE CONCAT('%', :locality, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
     List<ResidentialPropertyDetails> filterByPlotAndLocation(@Param("state") String state, @Param("city") String city, @Param("locality") String locality);
 
     @Query("SELECT COUNT(r) FROM ResidentialPropertyDetails r WHERE r.city LIKE CONCAT('%', :city, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")

@@ -8,5 +8,6 @@ public record LoginResponse(
         Integer userId,
         String firstName,
         String lastName,
-        String email
+        String email,
+        String profileImageUrl
 ) {}
