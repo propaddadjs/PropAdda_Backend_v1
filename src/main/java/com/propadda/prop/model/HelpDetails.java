@@ -1,12 +1,9 @@
 package com.propadda.prop.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.propadda.prop.enumerations.HelpCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +21,9 @@ public class HelpDetails {
     @Column(name="help_id")
     private Integer helpId;
 
-    @Enumerated(EnumType.STRING)
+    // @Enumerated(EnumType.STRING)
     @Column(name="help_category")
-    private HelpCategory helpCategory;
+    private String helpCategory;
 
     @Column(name="help_subcategory")
     private String helpSubcategory;
@@ -47,11 +44,11 @@ public class HelpDetails {
         this.helpId = helpId;
     }
 
-    public HelpCategory getHelpCategory() {
+    public String getHelpCategory() {
         return helpCategory;
     }
 
-    public void setHelpCategory(HelpCategory helpCategory) {
+    public void setHelpCategory(String helpCategory) {
         this.helpCategory = helpCategory;
     }
 

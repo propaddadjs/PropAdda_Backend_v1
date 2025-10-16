@@ -21,6 +21,8 @@ import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.CommercialPropertyDetailsService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @PreAuthorize("hasAnyRole('AGENT','ADMIN') and @kycGuard.isApproved(authentication)")
 @RequestMapping("/commercial-properties")
@@ -34,14 +36,14 @@ public class CommercialPropertyDetailsController {
 
     @PostMapping(value="/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<CommercialPropertyDetails> createProperty(
-            @RequestPart("property") CommercialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files) throws IOException {
+            @RequestPart("property") CommercialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files) throws IOException, MessagingException {
         System.out.println("Received DTO: " + property);
         return ResponseEntity.ok(service.saveProperty(property,files));
     }
 
     @PutMapping(value="/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateProperty(
-            @RequestPart("property") CommercialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files, @AuthenticationPrincipal CustomUserDetails cud) throws IOException {
+            @RequestPart("property") CommercialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files, @AuthenticationPrincipal CustomUserDetails cud) throws IOException, MessagingException {
                 Integer agentId = cud.getUser().getUserId();
         System.out.println("Received DTO: " + property);
         return ResponseEntity.ok(service.updateProperty(property,files,agentId));

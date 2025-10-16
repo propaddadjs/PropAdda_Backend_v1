@@ -54,6 +54,7 @@ import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -1096,7 +1097,7 @@ public class UserService {
 
     @Transactional
     public void initiateKyc(String email, String address, String reraNumber,
-                            MultipartFile profileImage, MultipartFile aadhar) throws IOException {
+                            MultipartFile profileImage, MultipartFile aadhar) throws IOException, MessagingException {
         if (address == null || address.isBlank())
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Address is required");
         if (aadhar == null || aadhar.isEmpty())
@@ -1187,11 +1188,14 @@ public class UserService {
             userRepo.save(user);
 
             String link = appBaseUrl + "/reset-password?token=" + token;
-            mailSender.send(
-                user.getEmail(),
-                "Password Reset",
-                "Click the link to reset your password (valid for 1 hour): " + link
-            );
+            try {
+                mailSender.send(
+                        user.getEmail(),
+                        "Password Reset",
+                        "Click the link to reset your password (valid for 1 hour): " + link
+                );
+            } catch (MessagingException ex) {
+            }
         });
         // Always return 200 to avoid email enumeration
     }

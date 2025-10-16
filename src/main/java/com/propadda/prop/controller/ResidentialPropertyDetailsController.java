@@ -21,6 +21,8 @@ import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.ResidentialPropertyDetailsService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @PreAuthorize("hasAnyRole('AGENT','ADMIN') and @kycGuard.isApproved(authentication)")
 @RequestMapping("/residential-properties")
@@ -33,14 +35,14 @@ public class ResidentialPropertyDetailsController {
     }
 
     @PostMapping(value="/add", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ResidentialPropertyDetails> createOrUpdateProperty(@RequestPart("property") ResidentialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files) throws IOException {
+    public ResponseEntity<ResidentialPropertyDetails> createOrUpdateProperty(@RequestPart("property") ResidentialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files) throws IOException, MessagingException {
         System.out.println("Received DTO: " + property); // quick debug - prints all fields via toString()
         return ResponseEntity.ok(service.saveProperty(property,files));
     }
 
     @PutMapping(value="/update", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Object> updateProperty(
-            @RequestPart("property") ResidentialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files, @AuthenticationPrincipal CustomUserDetails cud) throws IOException {
+            @RequestPart("property") ResidentialPropertyRequest property, @RequestPart(value="files", required = false) List<MultipartFile> files, @AuthenticationPrincipal CustomUserDetails cud) throws IOException, MessagingException {
         Integer agentId = cud.getUser().getUserId();
         System.out.println("Received DTO: " + property);
         return ResponseEntity.ok(service.updateProperty(property,files,agentId));

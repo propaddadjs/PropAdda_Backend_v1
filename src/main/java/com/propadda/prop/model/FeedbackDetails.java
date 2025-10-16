@@ -1,12 +1,9 @@
 package com.propadda.prop.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.propadda.prop.enumerations.FeedbackCategory;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +21,9 @@ public class FeedbackDetails {
     @Column(name="feedback_id")
     private Integer feedbackId;
 
-    @Enumerated(EnumType.STRING)
+    // @Enumerated(EnumType.STRING)
     @Column(name="feedback_category")
-    private FeedbackCategory feedbackCategory;
+    private String feedbackCategory;
 
     @Column(name="feedback_subcategory")
     private String feedbackSubcategory;
@@ -50,11 +47,11 @@ public class FeedbackDetails {
         this.feedbackId = feedbackId;
     }
 
-    public FeedbackCategory getFeedbackCategory() {
+    public String getFeedbackCategory() {
         return feedbackCategory;
     }
 
-    public void setFeedbackCategory(FeedbackCategory feedbackCategory) {
+    public void setFeedbackCategory(String feedbackCategory) {
         this.feedbackCategory = feedbackCategory;
     }
 

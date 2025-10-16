@@ -23,6 +23,7 @@ import com.propadda.prop.repo.FavoriteListingsDetailsRepo;
 import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -52,7 +53,7 @@ public class CommercialPropertyDetailsService {
     }
 
     @Transactional
-    public CommercialPropertyDetails saveProperty(CommercialPropertyRequest property, List<MultipartFile> files) throws IOException {
+    public CommercialPropertyDetails saveProperty(CommercialPropertyRequest property, List<MultipartFile> files) throws IOException, MessagingException {
         // Add validations if needed (e.g., preference not null, price > 0)
         if (property.getState() == null || property.getCity() == null || property.getLocality() == null) {
             throw new IllegalArgumentException("State, city, and locality must not be null");
@@ -212,7 +213,7 @@ public class CommercialPropertyDetailsService {
     }
 
     @Transactional
-    public Object updateProperty(CommercialPropertyRequest property, List<MultipartFile> files, Integer agentId) throws IOException {
+    public Object updateProperty(CommercialPropertyRequest property, List<MultipartFile> files, Integer agentId) throws IOException, MessagingException {
         CommercialPropertyDetails propModel = repository.findByListingIdAndCommercialOwner_UserId(property.getListingId(), agentId)
             .orElseThrow(() -> new IllegalArgumentException("Property not found or not owned by agent"));
         

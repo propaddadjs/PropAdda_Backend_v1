@@ -25,7 +25,7 @@ public class MailSenderService {
     
     private static final Logger log = LoggerFactory.getLogger(MailSenderService.class);
 
-    public void send(String to, String subject, String body) {
+    public void send(String to, String subject, String body)  throws MessagingException {
         log.info("Sending mail to {} | {} | {}", to, subject, body);
          SimpleMailMessage msg = new SimpleMailMessage();
         msg.setFrom(from);

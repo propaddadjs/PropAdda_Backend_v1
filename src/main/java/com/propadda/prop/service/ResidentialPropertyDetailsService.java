@@ -24,6 +24,7 @@ import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -54,7 +55,7 @@ public class ResidentialPropertyDetailsService {
 
     // Create or Update property
     @Transactional
-    public ResidentialPropertyDetails saveProperty(ResidentialPropertyRequest property, List<MultipartFile> files) throws IOException {
+    public ResidentialPropertyDetails saveProperty(ResidentialPropertyRequest property, List<MultipartFile> files) throws IOException, MessagingException {
     	// Mandatory fields validation
         if (property.getState() == null || property.getCity() == null || property.getLocality() == null) {
             throw new IllegalArgumentException("State, city, and locality must not be null");
@@ -297,7 +298,7 @@ public class ResidentialPropertyDetailsService {
     }
 
     @Transactional
-    public Object updateProperty(ResidentialPropertyRequest property, List<MultipartFile> files, Integer agentId) throws IOException {
+    public Object updateProperty(ResidentialPropertyRequest property, List<MultipartFile> files, Integer agentId) throws IOException, MessagingException {
         System.out.println("Property request: "+property.toString()+" agent id: "+agentId);
         ResidentialPropertyDetails propModel = repository.findByListingIdAndResidentialOwner(property.getListingId(), usersRepo.findById(agentId).get())
             .orElseThrow(() -> new IllegalArgumentException("Property not found or not owned by agent"));

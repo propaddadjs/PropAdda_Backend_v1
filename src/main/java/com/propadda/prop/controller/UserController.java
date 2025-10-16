@@ -30,6 +30,8 @@ import com.propadda.prop.model.HelpDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.UserService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -154,7 +156,7 @@ public class UserController {
             @RequestPart(name = "profileImage", required = false) MultipartFile profileImage, // optional
             @RequestPart(name = "aadhar", required = true) MultipartFile aadhar,              // required
             @AuthenticationPrincipal CustomUserDetails cud
-    ) throws IOException {
+    ) throws IOException, MessagingException {
         userService.initiateKyc(cud.getUsername(), address, reraNumber, profileImage, aadhar);
         return ResponseEntity.ok(Map.of(
                 "message", "KYC initiated and pending for admin approval",

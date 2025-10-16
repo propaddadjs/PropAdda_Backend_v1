@@ -26,6 +26,8 @@ import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
+
 @Service
 public class BuyerService {
 
@@ -120,7 +122,7 @@ public class BuyerService {
         return !favRepo.findByFavoritesOfBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isEmpty();
     }
 
-    public EnquiredListingsDetails sendEnquiriesFromBuyer(EnquiredListingsDetails enquiry, String category, Integer listingId, Integer buyerId) {
+    public EnquiredListingsDetails sendEnquiriesFromBuyer(EnquiredListingsDetails enquiry, String category, Integer listingId, Integer buyerId) throws MessagingException {
         EnquiredListingsDetails e = new EnquiredListingsDetails();
         Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
         if(enqRepo.findByEnquiriesByBuyerAndPropertyIdAndPropertyCategory(u,listingId,category).isPresent()){

@@ -21,6 +21,8 @@ import com.propadda.prop.dto.ResidentialPropertyResponse;
 import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.service.AdminService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @PreAuthorize("hasRole('ADMIN')")
 @RequestMapping("/admin")
@@ -286,7 +288,7 @@ public class AdminController {
     }
 
     @PatchMapping("/properties/approve/{category}/{listingId}")
-    public ResponseEntity<?> approveProperty(@PathVariable String category, @PathVariable Integer listingId) {
+    public ResponseEntity<?> approveProperty(@PathVariable String category, @PathVariable Integer listingId) throws MessagingException {
         boolean ok = adminService.approveProperty(listingId, category);
         if (ok) return ResponseEntity.ok().build();
         return ResponseEntity.status(404).body("Property not found");
@@ -294,7 +296,7 @@ public class AdminController {
 
     @PatchMapping("/properties/reject/{category}/{listingId}")
     public ResponseEntity<?> rejectProperty(@PathVariable String category, @PathVariable Integer listingId,
-                                            @RequestBody(required = false) Map<String, String> body) {
+                                            @RequestBody(required = false) Map<String, String> body) throws MessagingException {
         String reason = body != null ? body.getOrDefault("reason", "") : "";
         boolean ok = adminService.rejectProperty(listingId, category, reason);
         if (ok) return ResponseEntity.ok().build();
@@ -315,13 +317,13 @@ public class AdminController {
     }
 
     @PatchMapping("/renewProperty/{category}/{listingId}")
-    public ResponseEntity<?> renewProperty(@PathVariable Integer listingId, @PathVariable String category) {
+    public ResponseEntity<?> renewProperty(@PathVariable Integer listingId, @PathVariable String category) throws MessagingException {
         Object propObject = adminService.renewProperty(listingId, category);
         return ResponseEntity.ok(propObject);
     }
 
     @PatchMapping("/notifyDealer/{category}/{listingId}")
-    public ResponseEntity<?> notifyDealer(@PathVariable Integer listingId, @PathVariable String category) {
+    public ResponseEntity<?> notifyDealer(@PathVariable Integer listingId, @PathVariable String category) throws MessagingException {
         Object propObject = adminService.notifyDealer(listingId, category);
         return ResponseEntity.ok(propObject);
     }
@@ -360,7 +362,7 @@ public class AdminController {
     }
 
     @PatchMapping("/sellerKyc/approve/{userId}")
-    public ResponseEntity<?> approveKyc(@PathVariable Integer userId) {
+    public ResponseEntity<?> approveKyc(@PathVariable Integer userId) throws MessagingException {
         boolean ok = adminService.approveKyc(userId);
         if (ok) return ResponseEntity.ok().build();
         return ResponseEntity.status(404).body("User not found");
@@ -368,7 +370,7 @@ public class AdminController {
 
     @PatchMapping("/sellerKyc/reject/{userId}")
     public ResponseEntity<?> rejectKyc(@PathVariable Integer userId,
-                                        @RequestBody(required = false) Map<String, String> body) {
+                                        @RequestBody(required = false) Map<String, String> body) throws MessagingException {
                                             String reason = body != null ? body.getOrDefault("reason", "") : "";
         boolean ok = adminService.rejectKyc(userId, reason);
         if (ok) return ResponseEntity.ok().build();

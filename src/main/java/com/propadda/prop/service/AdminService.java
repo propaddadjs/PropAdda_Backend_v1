@@ -42,6 +42,7 @@ import com.propadda.prop.repo.RejectionDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -1974,7 +1975,7 @@ public class AdminService {
     }
 
         @Transactional
-        public boolean approveProperty(Integer listingId, String category) {
+        public boolean approveProperty(Integer listingId, String category) throws MessagingException {
             if ("Residential".equalsIgnoreCase(category)) {
                 Optional<ResidentialPropertyDetails> opt = rpdRepo.findById(listingId);
                 if (opt.isPresent()) {
@@ -2059,7 +2060,7 @@ public class AdminService {
         }
 
         @Transactional
-        public boolean rejectProperty(Integer listingId, String category, String reason) {
+        public boolean rejectProperty(Integer listingId, String category, String reason) throws MessagingException {
             if ("Residential".equalsIgnoreCase(category)) {
                 Optional<ResidentialPropertyDetails> opt = rpdRepo.findById(listingId);
                 if (opt.isPresent()) {
@@ -2179,7 +2180,7 @@ public class AdminService {
     }
 
     @Transactional
-    public Object renewProperty(Integer listingId, String category) {
+    public Object renewProperty(Integer listingId, String category) throws MessagingException {
         if(category.equalsIgnoreCase("Commercial") && cpdRepo.findById(listingId).isPresent()){
             CommercialPropertyDetails cpd = cpdRepo.findById(listingId).get();
             cpd.setExpired(false);
@@ -2234,7 +2235,7 @@ public class AdminService {
     }
 
     @Transactional
-    public Object notifyDealer(Integer listingId, String category) {
+    public Object notifyDealer(Integer listingId, String category) throws MessagingException {
         if(category.equalsIgnoreCase("Commercial") && cpdRepo.findById(listingId).isPresent()){
             CommercialPropertyDetails cpd = cpdRepo.findById(listingId).get();
 
@@ -2371,7 +2372,7 @@ public class AdminService {
     }
 
     @Transactional
-    public boolean approveKyc(Integer userId){
+    public boolean approveKyc(Integer userId) throws MessagingException{
         Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
             user.setKycVerified(Kyc.APPROVED);
@@ -2403,7 +2404,7 @@ public class AdminService {
     }
 
     @Transactional
-    public boolean rejectKyc(Integer userId, String reason){
+    public boolean rejectKyc(Integer userId, String reason) throws MessagingException{
         Optional<Users> user = userRepo.findById(userId);
         if(user.isPresent()){
             Users u = user.get();

@@ -16,6 +16,8 @@ import com.propadda.prop.model.FavoriteListingsDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.BuyerService;
 
+import jakarta.mail.MessagingException;
+
 @RestController
 @PreAuthorize("hasAnyRole('BUYER','AGENT','ADMIN')")
 @RequestMapping("/buyer")
@@ -59,7 +61,7 @@ public class BuyerController {
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/sendEnquiriesFromBuyer/{category}/{listingId}")
-    public ResponseEntity<?> sendEnquiriesFromBuyer(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody EnquiredListingsDetails enquiry, @PathVariable String category, @PathVariable Integer listingId) {
+    public ResponseEntity<?> sendEnquiriesFromBuyer(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody EnquiredListingsDetails enquiry, @PathVariable String category, @PathVariable Integer listingId) throws MessagingException {
         Integer buyerId = cud.getUser().getUserId();
         EnquiredListingsDetails e = buyerService.sendEnquiriesFromBuyer(enquiry,category,listingId,buyerId);
         if(e==null){
