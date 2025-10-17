@@ -796,13 +796,18 @@ public class UserService {
             if(locality==null || locality.equalsIgnoreCase("")){
                 localityValue=true;
             } else
-            if(r.getLocality().toLowerCase().contains(locality.toLowerCase())){
-                localityValue= r.getLocality().toLowerCase().contains(locality.toLowerCase());
+            if(r.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            r.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            r.getTitle().toLowerCase().contains(locality.toLowerCase())
+            ){
+                localityValue= r.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            r.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            r.getTitle().toLowerCase().contains(locality.toLowerCase());
             }
 
-                if(r.getPreference().equalsIgnoreCase(preference) && stateValue && cityValue && localityValue){
-                    filteredRes.add(r);
-                }
+        if(r.getPreference().equalsIgnoreCase(preference) && stateValue && cityValue && localityValue){
+            filteredRes.add(r);
+        }
 
         }
 
@@ -829,8 +834,12 @@ public class UserService {
             if(locality==null || locality.equalsIgnoreCase("")){
                 localityValue=true;
             } else
-            if(c.getLocality().toLowerCase().contains(locality.toLowerCase())){
-                localityValue= c.getLocality().toLowerCase().contains(locality.toLowerCase());
+            if(c.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            c.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            c.getTitle().toLowerCase().contains(locality.toLowerCase())){
+                localityValue= c.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            c.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            c.getTitle().toLowerCase().contains(locality.toLowerCase());
             }
 
                 if(c.getPreference().equalsIgnoreCase(preference) && stateValue && cityValue && localityValue){
@@ -941,7 +950,7 @@ public class UserService {
         Map<String, Integer> res = new HashMap<>();
         res.put("Bengaluru",rRepo.countByCity("Bengaluru")+cRepo.countByCity("Bengaluru"));
         res.put("Gurgaon",rRepo.countByCity("Gurgaon")+cRepo.countByCity("Gurgaon"));
-        res.put("New Delhi",rRepo.countByCity("New Delhi")+cRepo.countByCity("New Delhi"));
+        res.put("New Delhi",rRepo.countByState("Delhi")+cRepo.countByCity("Delhi"));
         res.put("Mumbai",rRepo.countByCity("Mumbai")+cRepo.countByCity("Mumbai"));
         res.put("Pune",rRepo.countByCity("Pune")+cRepo.countByCity("Pune"));
         res.put("Lucknow",rRepo.countByCity("Lucknow")+cRepo.countByCity("Lucknow"));
@@ -956,10 +965,16 @@ public class UserService {
     }
 
     public Map<String, List<?>> filterByCity(String city) {
-        List<ResidentialPropertyDetails> allResProp =  rRepo.filterByCity(city);
-           
-        List<CommercialPropertyDetails> allComProp =  cRepo.filterByCity(city);
-        
+            List<ResidentialPropertyDetails> allResProp;
+            List<CommercialPropertyDetails> allComProp;
+
+        if(city.equalsIgnoreCase("New Delhi")){
+            allResProp = rRepo.filterByState("Delhi");
+            allComProp = cRepo.filterByState("Delhi");
+        } else {
+            allResProp = rRepo.filterByCity(city);
+            allComProp = cRepo.filterByCity(city);
+        }
         Map<String, List<?>> res = new HashMap<>();
         
         res.put("residential", ResidentialPropertyMapper.toDtoList(allResProp));

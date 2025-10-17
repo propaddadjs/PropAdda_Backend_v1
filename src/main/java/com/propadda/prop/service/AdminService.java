@@ -2477,7 +2477,16 @@ public class AdminService {
     }
 
     public Integer getNotificationCount(){
-        return notificationRepo.countUnreadNotifications(Role.ADMIN,1);
+       List<NotificationDetails> noti = notificationRepo.findByNotificationReceiverRole(Role.ADMIN);
+        Integer count=0;
+        for(NotificationDetails n : noti){
+            if(n.getNotificationViewed()!=null && n.getNotificationViewed()){
+                
+            } else {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Transactional

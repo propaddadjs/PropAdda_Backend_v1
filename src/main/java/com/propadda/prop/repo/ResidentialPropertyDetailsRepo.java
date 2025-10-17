@@ -70,8 +70,14 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
     @Query("SELECT COUNT(r) FROM ResidentialPropertyDetails r WHERE r.city LIKE CONCAT('%', :city, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
     Integer countByCity(@Param("city") String city);
 
+    @Query("SELECT COUNT(r) FROM ResidentialPropertyDetails r WHERE r.state LIKE CONCAT('%', :state, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
+    Integer countByState(@Param("state") String state);
+
     @Query("SELECT r FROM ResidentialPropertyDetails r WHERE r.city LIKE CONCAT('%', :city, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
     List<ResidentialPropertyDetails> filterByCity(@Param("city") String city);
+
+    @Query("SELECT r FROM ResidentialPropertyDetails r WHERE r.state LIKE CONCAT('%', :state, '%') AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
+    List<ResidentialPropertyDetails> filterByState(@Param("state") String state);
 
     @Query("SELECT r FROM ResidentialPropertyDetails r WHERE LOWER(r.propertyType) = :propertyType AND r.vip = true AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
     List<ResidentialPropertyDetails> getVipFilterByPropertyType(@Param("propertyType") String propertyType);

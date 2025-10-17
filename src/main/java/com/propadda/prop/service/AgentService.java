@@ -261,7 +261,16 @@ public class AgentService {
     }
 
     public Integer getUnreadNotificationCountForAgent(Integer agentId) {
-        return notifRepo.countUnreadNotifications(Role.AGENT,agentId);
+        List<NotificationDetails> noti = notifRepo.findByNotificationReceiverRoleAndNotificationReceiverId(Role.AGENT,agentId);
+        Integer count=0;
+        for(NotificationDetails n : noti){
+            if(n.getNotificationViewed()!=null && n.getNotificationViewed()){
+                
+            } else {
+                count++;
+            }
+        }
+        return count;
     }
 
     @Transactional

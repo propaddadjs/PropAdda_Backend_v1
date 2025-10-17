@@ -60,8 +60,14 @@ public interface CommercialPropertyDetailsRepo extends JpaRepository<CommercialP
     @Query("SELECT COUNT(c) FROM CommercialPropertyDetails c WHERE c.city LIKE CONCAT('%', :city, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
     Integer countByCity(@Param("city") String city);
 
+    @Query("SELECT COUNT(c) FROM CommercialPropertyDetails c WHERE c.state LIKE CONCAT('%', :state, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
+    Integer countByState(@Param("state") String state);
+
     @Query("SELECT c FROM CommercialPropertyDetails c WHERE c.city LIKE CONCAT('%', :city, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
     List<CommercialPropertyDetails> filterByCity(@Param("city") String city);
+
+    @Query("SELECT c FROM CommercialPropertyDetails c WHERE c.state LIKE CONCAT('%', :state, '%') AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
+    List<CommercialPropertyDetails> filterByState(@Param("state") String state);
 
     @Query("SELECT c FROM CommercialPropertyDetails c WHERE LOWER(c.propertyType) = :propertyType AND c.vip = true AND c.adminApproved = 'Approved' AND c.expired = false AND c.sold = false")
     List<CommercialPropertyDetails> getVipFilterByPropertyType(@Param("propertyType") String propertyType);

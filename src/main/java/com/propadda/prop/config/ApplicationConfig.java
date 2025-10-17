@@ -98,25 +98,32 @@ public class ApplicationConfig {
 
         return http.build();
     }
+
     // This bean is what Spring Security will use for CORS
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration cfg = new CorsConfiguration();
-        // Only list the origins you actually need in dev:
-        cfg.setAllowedOrigins(java.util.List.of("https://propadda-frontend-v1-506455747754.asia-south2.run.app","http://localhost:5173/"));
-        // Methods your app uses + OPTIONS for preflight
+
+        // IMPORTANT: use exact origins (no trailing slash)
+        cfg.setAllowedOrigins(java.util.List.of(
+            "https://propadda-frontend-v1-506455747754.asia-south2.run.app",
+            "http://localhost:5173"
+        ));
+
         cfg.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
-        // Headers your requests send (include Authorization for JWT)
         cfg.setAllowedHeaders(java.util.List.of(
             "Authorization",
             "Content-Type",
             "X-CSCAPI-KEY",
             "Accept",
-            "Origin"
+            "Origin",
+            "X-Requested-With"
         ));
-        // If you don’t use cookies, this can be false. True is fine for JWT in headers too.
+
+        // Allow cookies to be sent
         cfg.setAllowCredentials(true);
-        // (Optional) expose any headers you want the browser to read
+
+        // Expose headers you want the browser JS to be able to read (Authorization is ok)
         cfg.setExposedHeaders(java.util.List.of("Authorization"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -127,12 +134,17 @@ public class ApplicationConfig {
     @Bean
     public WebMvcConfigurer corsConfigurer() {
         return new WebMvcConfigurer() {
-            @Override public void addCorsMappings(CorsRegistry registry) {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                // Use exact origins without trailing slash
                 registry.addMapping("/**")
-                        .allowedOrigins("https://propadda-frontend-v1-506455747754.asia-south2.run.app")
-                        .allowedOrigins("http://localhost:5173/")
+                        .allowedOrigins(
+                            "https://propadda-frontend-v1-506455747754.asia-south2.run.app",
+                            "http://localhost:5173"
+                        )
                         .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
-                        .allowedHeaders("*");
+                        .allowedHeaders("Authorization","Content-Type","X-CSCAPI-KEY","Accept","Origin","X-Requested-With")
+                        .allowCredentials(true);
             }
         };
     }

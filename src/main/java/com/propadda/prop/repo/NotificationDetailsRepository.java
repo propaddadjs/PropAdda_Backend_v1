@@ -18,8 +18,10 @@ public interface NotificationDetailsRepository extends JpaRepository<Notificatio
 
     List<NotificationDetails> findByNotificationReceiverId(Integer notificationReceiverId);
 
+    List<NotificationDetails> findByNotificationReceiverRoleAndNotificationReceiverId(Role role, Integer notificationReceiverId);
+
     List<NotificationDetails> findByCreatedAtAfterAndNotificationReceiverRole(OffsetDateTime afterTime, Role role);
 
-    @Query("SELECT count(c) FROM NotificationDetails c WHERE c.notificationReceiverRole = :notificationReceiverRole AND c.notificationReceiverId= :notificationReceiverId AND notificationViewed = false")
+    @Query("SELECT count(c) FROM NotificationDetails c WHERE c.notificationReceiverRole = :notificationReceiverRole AND c.notificationReceiverId= :notificationReceiverId AND (notificationViewed = false OR notificationViewed = null)")
     Integer countUnreadNotifications(@Param("notificationReceiverRole") Role notificationReceiverRole, @Param("notificationReceiverId") Integer notificationReceiverId);
 } 
