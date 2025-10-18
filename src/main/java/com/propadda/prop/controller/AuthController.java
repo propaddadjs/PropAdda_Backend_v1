@@ -7,11 +7,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.Valid;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -19,7 +14,11 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.propadda.prop.config.JwtService;
 import com.propadda.prop.dto.AuthResponse;
@@ -34,6 +33,11 @@ import com.propadda.prop.repo.UsersRepo;
 import com.propadda.prop.security.CustomUserDetailsService;
 import com.propadda.prop.service.RefreshTokenService;
 import com.propadda.prop.service.UserService;
+
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/auth")
@@ -89,6 +93,7 @@ public class AuthController {
 
         // Build cookie
         ResponseCookie cookie = ResponseCookie.from("refresh", refresh)
+                .domain(".propadda.in")
                 .httpOnly(true)
                 .secure(cookieSecure)
                 .path("/")

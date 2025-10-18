@@ -107,7 +107,9 @@ public class ApplicationConfig {
         // IMPORTANT: use exact origins (no trailing slash)
         cfg.setAllowedOrigins(java.util.List.of(
             "https://propadda-frontend-v1-506455747754.asia-south2.run.app",
-            "http://localhost:5173"
+            "http://localhost:5173",
+            "https://www.propadda.in",
+            "https://propadda.in"
         ));
 
         cfg.setAllowedMethods(java.util.List.of("GET","POST","PUT","DELETE","PATCH","OPTIONS"));
@@ -140,7 +142,9 @@ public class ApplicationConfig {
                 registry.addMapping("/**")
                         .allowedOrigins(
                             "https://propadda-frontend-v1-506455747754.asia-south2.run.app",
-                            "http://localhost:5173"
+                            "http://localhost:5173",
+                            "https://www.propadda.in",
+                            "https://propadda.in"
                         )
                         .allowedMethods("GET","POST","PUT","DELETE","PATCH","OPTIONS")
                         .allowedHeaders("Authorization","Content-Type","X-CSCAPI-KEY","Accept","Origin","X-Requested-With")
