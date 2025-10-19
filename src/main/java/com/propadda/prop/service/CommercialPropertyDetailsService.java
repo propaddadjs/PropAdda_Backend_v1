@@ -219,38 +219,86 @@ public class CommercialPropertyDetailsService {
         
         CommercialPropertyDetails updated = CommercialPropertyMapper.requestToModel(propModel, property);
 
+        // if (files != null && !files.isEmpty()) {
+        //     Integer order = 1;
+        //     List<CommercialPropertyMedia> mediaFilesList = new ArrayList<>();
+        // for (MultipartFile file : files) {
+        //     String url = gcsService.uploadFile(file,"commercial");
+        //     CommercialPropertyMedia media = new CommercialPropertyMedia();
+        //     media.setUrl(url);
+        //     media.setFilename(file.getOriginalFilename());
+        //     media.setSize(file.getSize());
+        //     media.setUploadedAt(Instant.now());
+        //     media.setProperty(updated);
+        //     String contentType = file.getContentType();
+        //     if (contentType != null && contentType.startsWith("video/")) {
+        //         media.setMediaType(CommercialPropertyMedia.MediaType.VIDEO);
+        //         media.setOrd(0);
+        //     } else 
+        //     if(contentType != null && contentType.startsWith("image/")) {
+        //         media.setMediaType(CommercialPropertyMedia.MediaType.IMAGE);
+        //         media.setOrd(order);
+        //         order++;
+        //     } else 
+        //     if(contentType != null && (contentType.startsWith("application/") || contentType.startsWith("text/"))){
+        //         media.setMediaType(CommercialPropertyMedia.MediaType.BROCHURE);
+        //         media.setOrd(-1);
+        //     } else {
+        //         media.setMediaType(CommercialPropertyMedia.MediaType.OTHER);
+        //         media.setOrd(-2);
+        //     }
+        // mediaFilesList.add(media);
+        // }
+        // updated.setCommercialPropertyMediaFiles(mediaFilesList);
+        // }
+
         if (files != null && !files.isEmpty()) {
             Integer order = 1;
             List<CommercialPropertyMedia> mediaFilesList = new ArrayList<>();
-        for (MultipartFile file : files) {
-            String url = gcsService.uploadFile(file,"commercial");
-            CommercialPropertyMedia media = new CommercialPropertyMedia();
-            media.setUrl(url);
-            media.setFilename(file.getOriginalFilename());
-            media.setSize(file.getSize());
-            media.setUploadedAt(Instant.now());
-            media.setProperty(updated);
-            String contentType = file.getContentType();
-            if (contentType != null && contentType.startsWith("video/")) {
-                media.setMediaType(CommercialPropertyMedia.MediaType.VIDEO);
-                media.setOrd(0);
-            } else 
-            if(contentType != null && contentType.startsWith("image/")) {
-                media.setMediaType(CommercialPropertyMedia.MediaType.IMAGE);
-                media.setOrd(order);
-                order++;
-            } else 
-            if(contentType != null && (contentType.startsWith("application/") || contentType.startsWith("text/"))){
-                media.setMediaType(CommercialPropertyMedia.MediaType.BROCHURE);
-                media.setOrd(-1);
-            } else {
-                media.setMediaType(CommercialPropertyMedia.MediaType.OTHER);
-                media.setOrd(-2);
+            for (MultipartFile file : files) {
+                String url = gcsService.uploadFile(file, "commercial");
+                CommercialPropertyMedia media = new CommercialPropertyMedia();
+                media.setUrl(url);
+                media.setFilename(file.getOriginalFilename());
+                media.setSize(file.getSize());
+                media.setUploadedAt(Instant.now());
+                // set parent backref (still ok, but collection instance must not be replaced)
+                media.setProperty(updated);
+
+                String contentType = file.getContentType();
+                if (contentType != null && contentType.startsWith("video/")) {
+                    media.setMediaType(CommercialPropertyMedia.MediaType.VIDEO);
+                    media.setOrd(0);
+                } else if (contentType != null && contentType.startsWith("image/")) {
+                    media.setMediaType(CommercialPropertyMedia.MediaType.IMAGE);
+                    media.setOrd(order++);
+                } else if (contentType != null && (contentType.startsWith("application/") || contentType.startsWith("text/"))) {
+                    media.setMediaType(CommercialPropertyMedia.MediaType.BROCHURE);
+                    media.setOrd(-1);
+                } else {
+                    media.setMediaType(CommercialPropertyMedia.MediaType.OTHER);
+                    media.setOrd(-2);
+                }
+                mediaFilesList.add(media);
             }
-        mediaFilesList.add(media);
+
+            // ---- mutate existing collection instead of replacing it ----
+            List<CommercialPropertyMedia> existing = updated.getCommercialPropertyMediaFiles();
+            if (existing == null) {
+                // defensive: entity should ideally initialize this to avoid this branch
+                existing = new ArrayList<>();
+                updated.setCommercialPropertyMediaFiles(existing);
+            } else {
+                existing.clear(); // retain same collection instance so Hibernate can manage orphans
+            }
+
+            for (CommercialPropertyMedia m : mediaFilesList) {
+                // ensure bidirectional link
+                m.setProperty(updated);
+                existing.add(m);
+            }
         }
-        updated.setCommercialPropertyMediaFiles(mediaFilesList);
-        }
+
         updated.setCategory("Commercial");
         updated.setSold(false);
         updated.setVip(false);
