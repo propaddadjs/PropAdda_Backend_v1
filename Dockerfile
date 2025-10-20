@@ -19,3 +19,9 @@ COPY --from=builder /workspace/target/*-SNAPSHOT.jar /app/app.jar
 ENV JAVA_OPTS="-XX:MaxRAMPercentage=75.0"
 EXPOSE 8080
 CMD ["sh","-c","java $JAVA_OPTS -jar /app/app.jar"]
+
+
+# create upload dir and set permissions
+RUN mkdir -p /tmp/uploads && chown -R nobody:nogroup /tmp/uploads
+# ensure app runs as non-root user if you use one (adjust accordingly)
+USER nobody
