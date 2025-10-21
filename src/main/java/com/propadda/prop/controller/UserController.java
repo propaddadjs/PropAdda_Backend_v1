@@ -1,13 +1,8 @@
 package com.propadda.prop.controller;
 
+
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -37,8 +32,7 @@ import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.UserService;
 
 import jakarta.mail.MessagingException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.Part;
+
 
 @RestController
 @RequestMapping("/user")
@@ -171,51 +165,6 @@ public class UserController {
                 "status", "PENDING"
         ));
     }
-    
-
-    @RestController
-public class DebugController {
-
-    @PostMapping("/debug/parts")
-    public ResponseEntity<?> debugParts(HttpServletRequest req) throws Exception {
-        String ct = req.getContentType();
-        System.out.println("DEBUG: Content-Type: " + ct);
-        System.out.println("DEBUG: Content-Length: " + req.getContentLengthLong());
-
-        // print request headers
-        System.out.println("DEBUG: Request headers:");
-        Collections.list(req.getHeaderNames()).forEach(h -> System.out.println("  " + h + ": " + req.getHeader(h)));
-
-        if (ct == null || !ct.toLowerCase().startsWith("multipart/")) {
-            return ResponseEntity.ok(Map.of("status", "not-multipart", "contentType", ct));
-        }
-
-        Collection<Part> parts = req.getParts();
-        List<Map<String,Object>> out = new ArrayList<>();
-
-        for (Part p : parts) {
-            Map<String,Object> info = new HashMap<>();
-            info.put("name", p.getName());
-            info.put("size", p.getSize());
-            info.put("submittedFileName", p.getSubmittedFileName());
-
-            // FIXED: Part.getHeaderNames() returns Collection<String>, so stream it directly
-            Map<String, String> headersMap = p.getHeaderNames()
-                                             .stream()
-                                             .collect(Collectors.toMap(h -> h, p::getHeader));
-
-            info.put("headers", headersMap);
-
-            System.out.println("DEBUG PART: name=" + p.getName()
-                    + " filename=" + p.getSubmittedFileName()
-                    + " size=" + p.getSize()
-                    + " headers=" + headersMap.keySet());
-            out.add(info);
-        }
-
-        return ResponseEntity.ok(Map.of("parts", out));
-    }
-}
 
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/kycStatus")
