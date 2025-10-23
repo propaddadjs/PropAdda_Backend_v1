@@ -435,11 +435,11 @@ public class ResidentialPropertyDetailsService {
             .orElseThrow(() -> new IllegalArgumentException("Property not found or not owned by agent"));
 
         ResidentialPropertyDetails updated = ResidentialPropertyMapper.requestToModel(propModel, property);
-
         // Build Media entities from uploadedMedia (if provided)
         if (uploadedMedia != null && !uploadedMedia.isEmpty()) {
             Integer order = 1;
             List<ResidentialPropertyMedia> mediaFilesList = new ArrayList<>();
+            List<String> movedDestinations = new ArrayList<>();
             for (UploadedMediaDto um : uploadedMedia) {
                 // verify object exists in GCS
                 Blob blob = null;
@@ -458,11 +458,36 @@ public class ResidentialPropertyDetailsService {
                     System.out.println("Warning: size mismatch for " + um.objectName + " expected=" + um.size + " actual=" + blob.getSize());
                 }
 
+                    // build destination object name in final folder
+            // e.g. temp/UPLOADID/uuid-file.png -> uploads/commercial/UPLOADID/uuid-file.png
+            String destObjectName;
+            if (um.objectName.startsWith("temp/")) {
+                destObjectName = um.objectName.replaceFirst("^temp/", "uploads/residential/");
+            } else {
+                // if source isn't under temp for some reason, place into uploads/commercial/{uploadId}/...
+                // fallback: prefix with uploads/commercial/
+                destObjectName = "uploads/residential/" + um.objectName;
+            }
+
+            // move (copy then delete)
+            gcsService.moveObject(um.objectName, destObjectName);
+            movedDestinations.add(destObjectName);
+
+            // optional: verify destination exists
+            Blob destBlob = gcsService.getStorage().get(BlobId.of(gcsService.getBucketName(), destObjectName));
+            if (destBlob == null) {
+                throw new IllegalStateException("Failed to move to destination: " + destObjectName);
+            }
+
                 ResidentialPropertyMedia media = new ResidentialPropertyMedia();
                 // For display, point to public URL (or keep objectName and later copy to final path)
-                String publicUrl = String.format("https://storage.googleapis.com/%s/%s", gcsService.getBucketName(), um.objectName);
-                media.setUrl(publicUrl);
+                // String publicUrl = String.format("https://storage.googleapis.com/%s/%s", gcsService.getBucketName(), um.objectName);
+                // media.setUrl(publicUrl);
+                // media.setFilename(um.name);
+                String signedGet = gcsService.generateV4GetSignedUrl(destObjectName); // 1 year
+                media.setUrl(signedGet);
                 media.setFilename(um.name);
+                media.setObjectName(destObjectName);
                 media.setSize(um.size);
                 media.setUploadedAt(Instant.now());
                 media.setProperty(updated);

@@ -422,7 +422,6 @@ public class CommercialPropertyDetailsService {
 
         // Map request into existing entity (reuse your mapper)
         CommercialPropertyDetails updated = CommercialPropertyMapper.requestToModel(propModel, property);
-
         // If uploaded media provided, verify and attach as media entities
         if (uploadedMedia != null && !uploadedMedia.isEmpty()) {
             Integer orderImage = 1;
@@ -430,6 +429,7 @@ public class CommercialPropertyDetailsService {
             Integer orderBrochure = 21;
 
             List<CommercialPropertyMedia> mediaFilesList = new ArrayList<>();
+            List<String> movedDestinations = new ArrayList<>();
             for (UploadedMediaDto um : uploadedMedia) {
                 // Try to fetch blob metadata via GcsResumableService first (recommended)
                 Blob blob = null;
@@ -444,6 +444,27 @@ public class CommercialPropertyDetailsService {
                     throw new IllegalStateException("Uploaded object not found in GCS: " + um.objectName);
                 }
 
+                // build destination object name in final folder
+            // e.g. temp/UPLOADID/uuid-file.png -> uploads/commercial/UPLOADID/uuid-file.png
+            String destObjectName;
+            if (um.objectName.startsWith("temp/")) {
+                destObjectName = um.objectName.replaceFirst("^temp/", "uploads/commercial/");
+            } else {
+                // if source isn't under temp for some reason, place into uploads/commercial/{uploadId}/...
+                // fallback: prefix with uploads/commercial/
+                destObjectName = "uploads/commercial/" + um.objectName;
+            }
+
+            // move (copy then delete)
+            gcsService.moveObject(um.objectName, destObjectName);
+            movedDestinations.add(destObjectName);
+
+            // optional: verify destination exists
+            Blob destBlob = gcsService.getStorage().get(BlobId.of(gcsService.getBucketName(), destObjectName));
+            if (destBlob == null) {
+                throw new IllegalStateException("Failed to move to destination: " + destObjectName);
+            }
+
                 // Optional: size check (log mismatch, but not mandatory to fail)
                 if (um.size > 0 && blob.getSize() != um.size) {
                     System.out.println("Warning: size mismatch for " + um.objectName + " expected=" + um.size + " actual=" + blob.getSize());
@@ -451,9 +472,12 @@ public class CommercialPropertyDetailsService {
 
                 CommercialPropertyMedia media = new CommercialPropertyMedia();
                 // Set public URL for consumption in frontend (or keep objectName and copy later)
-                String publicUrl = String.format("https://storage.googleapis.com/%s/%s", gcsService.getBucketName(), um.objectName);
-                media.setUrl(publicUrl);
+                // String publicUrl = String.format("https://storage.googleapis.com/%s/%s", gcsService.getBucketName(), um.objectName);
+                // media.setUrl(publicUrl);
+                String signedGet = gcsService.generateV4GetSignedUrl(destObjectName); // 1 year
+                media.setUrl(signedGet);
                 media.setFilename(um.name);
+                media.setObjectName(destObjectName);
                 media.setSize(um.size);
                 media.setUploadedAt(Instant.now());
                 media.setProperty(updated);
