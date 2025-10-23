@@ -2077,7 +2077,7 @@ public class AdminService {
 
                     //notification flow
                     NotificationDetails notification = new NotificationDetails();
-                    String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please resubmit.";
                     notification.setNotificationType(NotificationType.ListingRejection);
                     notification.setNotificationMessage(message);
                     notification.setNotificationReceiverId(p.getResidentialOwner().getUserId());
@@ -2093,7 +2093,7 @@ public class AdminService {
                     //email flow
                     String to = p.getResidentialOwner().getEmail();
                     String subject = "Rejected- "+p.getTitle();
-                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please resubmit.";
                     mailService.send(to, subject, body);
 
                     return true;
@@ -2113,7 +2113,7 @@ public class AdminService {
 
                     //notification flow
                     NotificationDetails notification = new NotificationDetails();
-                    String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    String message = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please resubmit.";
                     notification.setNotificationType(NotificationType.ListingRejection);
                     notification.setNotificationMessage(message);
                     notification.setNotificationReceiverId(p.getCommercialOwner().getUserId());
@@ -2129,7 +2129,7 @@ public class AdminService {
                     //email flow
                     String to = p.getCommercialOwner().getEmail();
                     String subject = "Rejected- "+p.getTitle();
-                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please edit and resubmit.";
+                    String body = "Your listing titled- "+p.getTitle()+" was not Approved. Reason: "+reason+". Please resubmit.";
                     mailService.send(to, subject, body);
 
                     return true;
