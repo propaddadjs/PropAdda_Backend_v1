@@ -4,10 +4,23 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
 import com.propadda.prop.dto.MediaResponse;
 import com.propadda.prop.model.ResidentialPropertyMedia;
+import com.propadda.prop.service.GcsService;
 
+@Component
 public class ResidentialMediaMapper {
+
+    private static GcsService gcsService;
+
+    @Autowired
+    public void setGcsService(GcsService s) {
+        ResidentialMediaMapper.gcsService = s;
+    }
+
     // Helper for ResidentialPropertyMedia
     public static MediaResponse toDto(ResidentialPropertyMedia entity) {
         if (entity == null) {
@@ -15,7 +28,12 @@ public class ResidentialMediaMapper {
         }
 
         MediaResponse dto = new MediaResponse();
-        dto.setUrl(entity.getUrl());
+        if(entity.getObjectName()==null){
+            dto.setUrl(entity.getUrl());
+        } else {
+            String signed = gcsService.generateV4GetSignedUrl(entity.getObjectName());
+            dto.setUrl(signed);
+        }
         dto.setFilename(entity.getFilename());
         dto.setOrd(entity.getOrd()); // Assuming getOrd() is available
         return dto;

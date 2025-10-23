@@ -2,6 +2,9 @@ package com.propadda.prop.service;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
@@ -9,10 +12,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Storage.SignUrlOption;
 import com.google.cloud.storage.StorageOptions;
 
 @Service
@@ -26,6 +32,13 @@ public class GcsService {
         this.storage = StorageOptions.getDefaultInstance().getService();
         this.bucket = bucket;
         this.expirySeconds = expirySeconds;
+    }
+
+    public Storage getStorage() {
+        return this.storage;
+    }
+    public String getBucketName() {
+        return this.bucket;
     }
 
     public String uploadFile(MultipartFile file, String propertyType) throws IOException {
@@ -47,10 +60,6 @@ public class GcsService {
         // Option A: Signed URL (expires after given duration)
         URL signedUrl = storage.signUrl(blobInfo, 365, TimeUnit.DAYS);
         return signedUrl.toString();
-        
-        // Option B: If bucket is public, you can directly return public URL:
-        // return String.format("https://storage.googleapis.com/%s/%s", bucket, blobName);
-
     }
 
     public String uploadKYCFiles(MultipartFile file, String fileType) throws IOException {
@@ -81,10 +90,68 @@ public class GcsService {
 
     }
 
+    /**
+     * Create a V4 signed POST URL that the browser can call with header:
+     *   x-goog-resumable: start
+     * The POST returns a Location header containing the resumable session URI.
+     */
+    public SignedUrlInfo generateResumableStartSignedUrl(String objectName, String contentType, long expirySeconds) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucket, objectName))
+                .setContentType(contentType)
+                .build();
+
+        // Required: include the resumable header in the signature so the browser can send it.
+        Map<String, String> extHeaders = Map.of("x-goog-resumable", "start");
+
+        URL signedUrl = storage.signUrl(
+                blobInfo,
+                expirySeconds,
+                TimeUnit.SECONDS,
+                SignUrlOption.httpMethod(HttpMethod.POST),
+                SignUrlOption.withV4Signature(),
+                SignUrlOption.withExtHeaders(extHeaders),
+                SignUrlOption.withContentType()
+        );
+
+        String publicUrl = String.format("https://storage.googleapis.com/%s/%s", bucket, objectName);
+        return new SignedUrlInfo(signedUrl.toString(), publicUrl);
+    }
+
+    public String generateV4GetSignedUrl(String objectName) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucket, objectName)).build();
+        URL signed = storage.signUrl(blobInfo, 7, TimeUnit.DAYS,
+                SignUrlOption.withV4Signature(),
+                SignUrlOption.httpMethod(HttpMethod.GET));
+        return signed.toString();
+    }
+
+    public void moveObject(String sourceObject, String destinationObject) {
+        BlobId source = BlobId.of(bucket, sourceObject);
+        BlobId target = BlobId.of(bucket, destinationObject);
+
+        // Copy
+        storage.copy(com.google.cloud.storage.Storage.CopyRequest.newBuilder()
+                .setSource(source)
+                .setTarget(BlobInfo.newBuilder(target).build())
+                .build());
+
+        // Delete source
+        storage.delete(source);
+    }
+
     public void deleteFile(String fileUrl) {
         // Parse blob name from URL
         String blobName = fileUrl.substring(fileUrl.lastIndexOf("/") + 1);
         storage.delete(bucket, blobName);
+    }
+
+    public void deletePrefix(String prefix) {
+        Page<Blob> blobs = storage.list(bucket, Storage.BlobListOption.prefix(prefix));
+        List<BlobId> ids = new ArrayList<>();
+        for (Blob b : blobs.iterateAll()) {
+            ids.add(b.getBlobId());
+        }
+        if (!ids.isEmpty()) storage.delete(ids);
     }
 
     public SignedUrlInfo generateV4UploadSignedUrl(String objectName, String contentType) {

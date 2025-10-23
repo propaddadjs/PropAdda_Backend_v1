@@ -39,6 +39,9 @@ public class ResidentialPropertyMedia {
     @Column(name = "size")
     private Long size;
 
+    @Column(name = "object_name")
+    private String objectName;
+
     @Column(name = "uploaded_at")
     private Instant uploadedAt;
 
@@ -49,6 +52,14 @@ public class ResidentialPropertyMedia {
 
     public ResidentialPropertyMedia() {
         this.uploadedAt = Instant.now();
+    }
+
+    public String getObjectName() {
+        return objectName;
+    }
+
+    public void setObjectName(String objectName) {
+        this.objectName = objectName;
     }
 
     public enum MediaType {
