@@ -150,7 +150,7 @@ public class UserService {
                 u.getFirstName(),
                 u.getLastName(),
                 u.getEmail(),
-                gcsService.generateSignedUrl(u.getProfileImageUrl())
+                (u.getProfileImageUrl()==null || u.getProfileImageUrl().isEmpty()) ? null : gcsService.generateSignedUrl(u.getProfileImageUrl())
         );
     }
 

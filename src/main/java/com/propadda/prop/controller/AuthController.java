@@ -76,7 +76,7 @@ public class AuthController {
             u.getRole(),
             u.getFirstName(), u.getLastName(),
             u.getKycVerified() != null ? u.getKycVerified().name() : null,
-            gcsService.generateSignedUrl(u.getProfileImageUrl())
+            (u.getProfileImageUrl()==null || u.getProfileImageUrl().isEmpty()) ? null : gcsService.generateSignedUrl(u.getProfileImageUrl())
         );
     }
 
