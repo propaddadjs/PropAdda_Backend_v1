@@ -1,9 +1,11 @@
 package com.propadda.prop.controller;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -26,6 +28,7 @@ import com.propadda.prop.model.FeedbackDetails;
 import com.propadda.prop.model.HelpDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.AgentService;
+import com.propadda.prop.service.GcsService;
 
 
 @RestController
@@ -35,6 +38,9 @@ public class AgentController {
 
     @Autowired
     private AgentService agentService;
+
+    @Autowired
+    private GcsService gcsService;
     
     @GetMapping("/allPropertiesByAgent")
     public ResponseEntity<?> getAllPropertiesByAgent(@AuthenticationPrincipal CustomUserDetails cud) {
@@ -218,6 +224,19 @@ public class AgentController {
     public ResponseEntity<?> addMediaProductionPhotoshootRequestFromAgent(@RequestBody List<MediaProductionPhotoshootRequest> reqList, @AuthenticationPrincipal CustomUserDetails cud) {
         Integer agentId = cud.getUser().getUserId();
         return ResponseEntity.ok(agentService.addMediaProductionPhotoshootRequestFromAgent(reqList,agentId));
+    }
+
+    @PostMapping("/share/upload")
+    public ResponseEntity<?> uploadShareImage(@RequestPart("file") MultipartFile file,
+                                              @AuthenticationPrincipal CustomUserDetails cud) {
+        try {
+            Integer agentId = cud.getUser().getUserId();
+            String publicUrl = gcsService.uploadShareImage(file, agentId);
+            return ResponseEntity.ok(Collections.singletonMap("url", publicUrl));
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
     }
 
 }

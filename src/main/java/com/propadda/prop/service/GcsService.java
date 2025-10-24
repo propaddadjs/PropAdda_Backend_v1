@@ -13,6 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.google.api.gax.paging.Page;
+import com.google.cloud.storage.Acl;
+import com.google.cloud.storage.Acl.Role;
+import com.google.cloud.storage.Acl.User;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -26,12 +29,15 @@ public class GcsService {
     private final Storage storage;
     private final String bucket;
     private final long expirySeconds;
+    private final String shareBucket;
 
     public GcsService(@Value("${gcs.bucket}") String bucket,
-    @Value("${gcs.signed-url-expiry-seconds:300}") long expirySeconds) {
+    @Value("${gcs.signed-url-expiry-seconds:300}") long expirySeconds,
+    @Value("${gcs.share-bucket}") String shareBucket) {
         this.storage = StorageOptions.getDefaultInstance().getService();
         this.bucket = bucket;
         this.expirySeconds = expirySeconds;
+        this.shareBucket = shareBucket;
     }
 
     public Storage getStorage() {
@@ -202,5 +208,23 @@ public class GcsService {
         public SignedUrlInfo(String signedUrl, String publicUrl) {
             this.signedUrl = signedUrl; this.publicUrl = publicUrl;
         }
+    }
+
+    public String uploadShareImage(MultipartFile file, Integer agentId) throws IOException {
+        String blobName = "shares/agent-" + agentId + "/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+
+        BlobId blobId = BlobId.of(shareBucket, blobName);
+        BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+                .setContentType(file.getContentType())
+                .build();
+
+        // Upload bytes
+        storage.create(blobInfo, file.getBytes());
+
+        // Make the object public to everyone (read)
+        storage.createAcl(blobId, Acl.of(User.ofAllUsers(), Role.READER));
+
+        // Public URL (works well for social platforms)
+        return "https://storage.googleapis.com/" + shareBucket + "/" + blobName;
     }
 }
