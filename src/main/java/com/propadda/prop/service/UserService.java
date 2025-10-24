@@ -150,7 +150,7 @@ public class UserService {
                 u.getFirstName(),
                 u.getLastName(),
                 u.getEmail(),
-                u.getProfileImageUrl()
+                gcsService.generateSignedUrl(u.getProfileImageUrl())
         );
     }
 
@@ -1039,7 +1039,7 @@ public class UserService {
     public UserResponse getUserDetails(Integer userId) {
         UserResponse b = new UserResponse();
         if(userRepo.findById(userId).isPresent()){
-            b = UserMapper.toDto(userRepo.findById(userId).get());
+            b = UserMapper.toDto(userRepo.findById(userId).get(),gcsService);
         } 
         return b;
     }
@@ -1055,7 +1055,7 @@ public class UserService {
          if(profileImage!=null && !profileImage.isEmpty()){
             u.setProfileImageUrl(gcsService.uploadKYCFiles(profileImage, "profileImage"));
          }
-           UserResponse b = UserMapper.toDto(u);
+           UserResponse b = UserMapper.toDto(u,gcsService);
             userRepo.save(u);
         return b;
     }
@@ -1080,7 +1080,7 @@ public class UserService {
             String newHashedPassword = passwordEncoder.encode(passwordRequest.getNewPassword());
             user.setPassword(newHashedPassword);
             Users updatedUser = userRepo.save(user);
-            return UserMapper.toDto(updatedUser);
+            return UserMapper.toDto(updatedUser,gcsService);
         } else {
             return null;
         }
@@ -1186,7 +1186,7 @@ public class UserService {
     public AgentResponse getStatus(String email) {
         Users u = userRepo.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found"));
-        return AgentMapper.toDto(u);
+        return AgentMapper.toDto(u,gcsService);
     }
 
     @Transactional

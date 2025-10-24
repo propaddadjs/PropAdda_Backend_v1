@@ -2,6 +2,7 @@ package com.propadda.prop.mappers;
 
 import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.model.Users;
+import com.propadda.prop.service.GcsService;
 
 public class AgentMapper {
 
@@ -10,7 +11,7 @@ public class AgentMapper {
      * @param entity The Users object.
      * @return The AgentResponse DTO.
      */
-    public static AgentResponse toDto(Users entity) {
+    public static AgentResponse toDto(Users entity, GcsService gcsService) {
         if (entity == null) {
             return null;
         }
@@ -37,8 +38,14 @@ public class AgentMapper {
         dto.setPropaddaVerified(entity.getPropaddaVerified());
         
         // Media/Documents
-        dto.setAadharUrl(entity.getAadharUrl());
-        dto.setProfileImageUrl(entity.getProfileImageUrl());
+        dto.setAadharUrl(
+            (entity.getAadharUrl()==null || entity.getAadharUrl().isEmpty())
+            ? null
+            : gcsService.generateSignedUrl(entity.getAadharUrl()));
+        dto.setProfileImageUrl(
+            entity.getProfileImageUrl()==null || entity.getProfileImageUrl().isEmpty()
+            ? null
+            : gcsService.generateSignedUrl(entity.getProfileImageUrl()));
         
         // NOTE: We omit the 'password' field and all @OneToMany collections 
         // as they are not present in the AgentResponse DTO.

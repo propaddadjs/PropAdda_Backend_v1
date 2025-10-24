@@ -70,6 +70,9 @@ public class AdminService {
     MediaProductionRepo mpRepo;
 
     @Autowired
+    private GcsService gcsService;
+
+    @Autowired
     private MailSenderService mailService;
 
     public Map<String,List<?>> getAllProperties(){
@@ -2330,7 +2333,7 @@ public class AdminService {
         List<UserResponse> userRes = new ArrayList<>();
 
         for(Users u : users){
-            UserResponse ures = UserMapper.toDto(u);
+            UserResponse ures = UserMapper.toDto(u,gcsService);
             userRes.add(ures);
         }
         return userRes;
@@ -2341,7 +2344,7 @@ public class AdminService {
         List<AgentResponse> sellerRes = new ArrayList<>();
 
         for(Users u : users){
-            AgentResponse sres = AgentMapper.toDto(u);
+            AgentResponse sres = AgentMapper.toDto(u,gcsService);
             sellerRes.add(sres);
         }
         return sellerRes;
@@ -2365,7 +2368,7 @@ public class AdminService {
         List<AgentResponse> sellerRes = new ArrayList<>();
 
         for(Users u : users){
-            AgentResponse sres = AgentMapper.toDto(u);
+            AgentResponse sres = AgentMapper.toDto(u,gcsService);
             sellerRes.add(sres);
         }
         return sellerRes;
@@ -2507,7 +2510,7 @@ public class AdminService {
         for(EnquiredListingsDetails e : enqiries){
             LeadsResponse lr = new LeadsResponse();
             lr.setEnquiryId(e.getEnquiryId());
-            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get()));
+            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get(),gcsService));
             lr.setBuyerName(e.getBuyerName());
             lr.setBuyerPhoneNumber(e.getBuyerPhoneNumber());
             lr.setBuyerType(e.getBuyerType());
@@ -2531,7 +2534,7 @@ public class AdminService {
         for(EnquiredListingsDetails e : enqiries){
             LeadsResponse lr = new LeadsResponse();
             lr.setEnquiryId(e.getEnquiryId());
-            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get()));
+            lr.setUser(UserMapper.toDto(userRepo.findById(e.getEnquiriesByBuyer().getUserId()).get(),gcsService));
             lr.setBuyerName(e.getBuyerName());
             lr.setBuyerPhoneNumber(e.getBuyerPhoneNumber());
             lr.setBuyerType(e.getBuyerType());
@@ -2598,7 +2601,7 @@ public class AdminService {
             mpRes.setMediaProductionId(mp.getMediaProductionId());
             mpRes.setGraphics(mp.getGraphics());
             mpRes.setPhotoshoot(mp.getPhotoshoot());
-            mpRes.setAgent(AgentMapper.toDto(userRepo.findById(mp.getRequesterUserId()).get()));
+            mpRes.setAgent(AgentMapper.toDto(userRepo.findById(mp.getRequesterUserId()).get(),gcsService));
 
             if(mp.getPropertyCategory().equalsIgnoreCase("commercial")){
                 mpRes.setComResponse(CommercialPropertyMapper.toDto(cpdRepo.findById(mp.getPropertyId()).get()));

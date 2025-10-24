@@ -2,10 +2,11 @@ package com.propadda.prop.mappers;
 
 import com.propadda.prop.dto.UserResponse;
 import com.propadda.prop.model.Users;
+import com.propadda.prop.service.GcsService;
 
 public class UserMapper {
 
-    public static UserResponse toDto(Users entity) {
+    public static UserResponse toDto(Users entity, GcsService gcsService) {
         if (entity == null) {
             return null;
         }
@@ -26,7 +27,10 @@ public class UserMapper {
         dto.setRole(entity.getRole() != null ? entity.getRole().name() : null);
         
         // Image URL
-        dto.setProfileImageUrl(entity.getProfileImageUrl());
+        dto.setProfileImageUrl(
+            entity.getProfileImageUrl()==null || entity.getProfileImageUrl().isEmpty()
+            ? null
+            : gcsService.generateSignedUrl(entity.getProfileImageUrl()));
         
         // NOTE: Sensitive fields (password) and application-specific agent/admin fields 
         // (kycVerified, agentReraNumber, propaddaVerified, aadharUrl) 

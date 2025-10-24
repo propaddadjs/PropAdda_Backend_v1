@@ -62,16 +62,43 @@ public class GcsService {
         return signedUrl.toString();
     }
 
-    public String uploadKYCFiles(MultipartFile file, String fileType) throws IOException {
+    // public String uploadKYCFiles(MultipartFile file, String fileType) throws IOException {
         
+    //     String blobName;
+    //         if(fileType.equalsIgnoreCase("aadhar")){
+    //             blobName = "uploads/KYC/aadhar/" + UUID.randomUUID() + "-" + file.getOriginalFilename();}
+    //         else
+    //         if(fileType.equalsIgnoreCase("profileImage")){
+    //             blobName = "uploads/KYC/profile/" + UUID.randomUUID() + "-" + file.getOriginalFilename();}
+    //         else{
+    //             blobName = null;}
+
+    //     BlobId blobId = BlobId.of(bucket, blobName);
+    //     BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
+    //             .setContentType(file.getContentType())
+    //             .setContentDisposition("attachment; filename=\"" + file.getOriginalFilename() + "\"")
+    //             .build();
+
+    //     storage.create(blobInfo, file.getBytes());
+
+    //     // Option A: Signed URL (expires after given duration)
+    //     URL signedUrl = storage.signUrl(blobInfo, 365, TimeUnit.DAYS);
+    //     return signedUrl.toString();
+        
+    //     // Option B: If bucket is public, you can directly return public URL:
+    //     // return String.format("https://storage.googleapis.com/%s/%s", bucket, blobName);
+
+    // }
+
+    public String uploadKYCFiles(MultipartFile file, String fileType) throws IOException {
         String blobName;
-            if(fileType.equalsIgnoreCase("aadhar")){
-                blobName = "uploads/KYC/aadhar/" + UUID.randomUUID() + "-" + file.getOriginalFilename();}
-            else
-            if(fileType.equalsIgnoreCase("profileImage")){
-                blobName = "uploads/KYC/profile/" + UUID.randomUUID() + "-" + file.getOriginalFilename();}
-            else{
-                blobName = null;}
+        if (fileType.equalsIgnoreCase("aadhar")) {
+            blobName = "uploads/KYC/aadhar/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+        } else if (fileType.equalsIgnoreCase("profileImage")) {
+            blobName = "uploads/KYC/profile/" + UUID.randomUUID() + "-" + file.getOriginalFilename();
+        } else {
+            throw new IllegalArgumentException("Unknown fileType: " + fileType);
+        }
 
         BlobId blobId = BlobId.of(bucket, blobName);
         BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -81,13 +108,19 @@ public class GcsService {
 
         storage.create(blobInfo, file.getBytes());
 
-        // Option A: Signed URL (expires after given duration)
-        URL signedUrl = storage.signUrl(blobInfo, 365, TimeUnit.DAYS);
-        return signedUrl.toString();
-        
-        // Option B: If bucket is public, you can directly return public URL:
-        // return String.format("https://storage.googleapis.com/%s/%s", bucket, blobName);
+        // return the object name, store this in DB
+        return blobName;
+    }
 
+    public String generateSignedUrl(String blobName) {
+        BlobInfo blobInfo = BlobInfo.newBuilder(BlobId.of(bucket, blobName)).build();
+        URL signedUrl = storage.signUrl(
+            blobInfo,
+            15, TimeUnit.MINUTES,
+            SignUrlOption.withV4Signature(),
+            SignUrlOption.httpMethod(HttpMethod.GET)
+        );
+        return signedUrl.toString();
     }
 
     /**

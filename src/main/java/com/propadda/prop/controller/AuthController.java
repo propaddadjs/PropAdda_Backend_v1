@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -31,6 +32,7 @@ import com.propadda.prop.model.RefreshToken;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.UsersRepo;
 import com.propadda.prop.security.CustomUserDetailsService;
+import com.propadda.prop.service.GcsService;
 import com.propadda.prop.service.RefreshTokenService;
 import com.propadda.prop.service.UserService;
 
@@ -53,6 +55,9 @@ public class AuthController {
     @Value("${security.jwt.refresh-exp-days:60}")
     private long refreshExpDays;
 
+    @Autowired
+    private GcsService gcsService;
+
     private final UsersRepo uRepo;
     private final UserService users;
     private final CustomUserDetailsService uds;
@@ -71,7 +76,7 @@ public class AuthController {
             u.getRole(),
             u.getFirstName(), u.getLastName(),
             u.getKycVerified() != null ? u.getKycVerified().name() : null,
-            u.getProfileImageUrl()
+            gcsService.generateSignedUrl(u.getProfileImageUrl())
         );
     }
 

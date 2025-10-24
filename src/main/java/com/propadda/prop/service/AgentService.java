@@ -159,7 +159,7 @@ public class AgentService {
         // Users agent = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
         AgentResponse agent = new AgentResponse();
         if(userRepo.findById(agentId).isPresent()){
-            agent = AgentMapper.toDto(userRepo.findById(agentId).get());
+            agent = AgentMapper.toDto(userRepo.findById(agentId).get(),gcsService);
         } 
         return agent;
     }
@@ -201,7 +201,7 @@ public class AgentService {
         }
     }   
         Users updatedUser = userRepo.save(agent);
-        return AgentMapper.toDto(updatedUser);
+        return AgentMapper.toDto(updatedUser,gcsService);
     }
 
     public Map<String, Integer> getAgentDashboardMetrics(Integer agentId) {
@@ -226,7 +226,7 @@ public class AgentService {
             String newHashedPassword = passwordEncoder.encode(passwordRequest.getNewPassword());
             agent.setPassword(newHashedPassword);
             Users updatedUser = userRepo.save(agent);
-            return AgentMapper.toDto(updatedUser);
+            return AgentMapper.toDto(updatedUser,gcsService);
         } else {
             return null;
         }
