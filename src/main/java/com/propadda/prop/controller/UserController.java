@@ -1,3 +1,4 @@
+// Author-Hemant Arora
 package com.propadda.prop.controller;
 
 
@@ -137,14 +138,14 @@ public class UserController {
     
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/addFeedbackFromUser")
-    public ResponseEntity<?> addFeedbackFromUser(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody FeedbackDetails feedbackRequest) {
+    public ResponseEntity<?> addFeedbackFromUser(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody FeedbackDetails feedbackRequest) throws MessagingException {
         Integer userId = cud.getUser().getUserId();
         return ResponseEntity.ok(userService.addFeedbackFromUser(feedbackRequest,userId));
     }
 
     @PreAuthorize("isAuthenticated()")
     @PostMapping("/addHelpRequestFromUser")
-    public ResponseEntity<?> addHelpRequestFromUser(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody HelpDetails helpRequest) {
+    public ResponseEntity<?> addHelpRequestFromUser(@AuthenticationPrincipal CustomUserDetails cud, @RequestBody HelpDetails helpRequest) throws MessagingException {
         Integer userId = cud.getUser().getUserId();
         return ResponseEntity.ok(userService.addHelpRequestFromUser(helpRequest,userId));
     }

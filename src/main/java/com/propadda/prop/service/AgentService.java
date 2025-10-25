@@ -1,3 +1,4 @@
+// Author-Hemant Arora
 package com.propadda.prop.service;
 
 import java.util.ArrayList;
@@ -41,6 +42,7 @@ import com.propadda.prop.repo.NotificationDetailsRepository;
 import com.propadda.prop.repo.ResidentialPropertyDetailsRepo;
 import com.propadda.prop.repo.UsersRepo;
 
+import jakarta.mail.MessagingException;
 import jakarta.transaction.Transactional;
 
 @Service
@@ -72,6 +74,9 @@ public class AgentService {
 
     @Autowired
     private MediaProductionRepo mpRepo;
+
+    @Autowired
+    private MailSenderService mailService;
 
     public Map<String,List<?>> getAllPropertiesByAgent(Integer agentId) {
         Users owner = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
@@ -233,11 +238,49 @@ public class AgentService {
     }
 
     @Transactional
-    public FeedbackDetails addFeedbackFromAgent(FeedbackDetails feedbackRequest, Integer agentId) {
+    public FeedbackDetails addFeedbackFromAgent(FeedbackDetails feedbackRequest, Integer agentId) throws MessagingException {
         Users agent = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
         if(agent!=null){
         feedbackRequest.setFeedbackUser(userRepo.findById(agentId).get());
-        return feedbackRepo.save(feedbackRequest);
+        FeedbackDetails f = feedbackRepo.save(feedbackRequest);
+        //email flow
+            String to = "propaddadjs@gmail.com";
+            String subject = "Feedback added by - "+agent.getFirstName()+" "+agent.getLastName();
+            String htmlBody = """
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.5;">
+                <h2 style="color: #333;">New Feedback Received</h2>
+                <p><strong>Feedback Category:</strong> %s</p>
+                <p><strong>Feedback Subcategory:</strong> %s</p>
+                <p><strong>Feedback Message:</strong> %s</p>
+                <p><strong>Rating:</strong> %s</p>
+                <hr style="border: none; border-top: 1px solid #ddd;" />
+                <h3 style="color: #333;">User's Details:</h3>
+                <p><strong>Name:</strong> %s %s</p>
+                <p><strong>Email:</strong> %s</p>
+                <p><strong>Phone:</strong> %s</p>
+                <p><strong>State:</strong> %s</p>
+                <p><strong>City:</strong> %s</p>
+                <p><strong>Role:</strong> %s</p>
+                <hr style="border: none; border-top: 1px solid #ddd;" />
+            </body>
+            </html>
+            """.formatted(
+                feedbackRequest.getFeedbackCategory(),
+                feedbackRequest.getFeedbackSubcategory(),
+                feedbackRequest.getFeedbackDetail(),
+                feedbackRequest.getRating(),
+                agent.getFirstName(),
+                agent.getLastName(),
+                agent.getEmail(),
+                agent.getPhoneNumber(),
+                agent.getState(),
+                agent.getCity(),
+                agent.getRole().name()
+            );
+
+            mailService.sendHtml(to, subject, htmlBody);
+            return f;
         }
         else {
             return null;
@@ -245,11 +288,46 @@ public class AgentService {
     }
 
     @Transactional
-    public HelpDetails addHelpRequestFromAgent(HelpDetails helpRequest, Integer agentId) {
+    public HelpDetails addHelpRequestFromAgent(HelpDetails helpRequest, Integer agentId) throws MessagingException {
         Users agent = userRepo.findById(agentId).isPresent() ? userRepo.findById(agentId).get() : null;
         if(agent!=null){
         helpRequest.setHelpUser(userRepo.findById(agentId).get());
-        return helpRepo.save(helpRequest);
+        HelpDetails h = helpRepo.save(helpRequest);
+        String to = "propaddadjs@gmail.com";
+        String subject = "Help request added by - "+agent.getFirstName()+" "+agent.getLastName();
+        String htmlBody = """
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.5;">
+            <h2 style="color: #333;">New Help Request Received</h2>
+            <p><strong>Help Category:</strong> %s</p>
+            <p><strong>Help Subcategory:</strong> %s</p>
+            <p><strong>Help Message:</strong> %s</p>
+            <hr style="border: none; border-top: 1px solid #ddd;" />
+            <h3 style="color: #333;">User's Details:</h3>
+            <p><strong>Name:</strong> %s %s</p>
+            <p><strong>Email:</strong> %s</p>
+            <p><strong>Phone:</strong> %s</p>
+            <p><strong>State:</strong> %s</p>
+            <p><strong>City:</strong> %s</p>
+            <p><strong>Role:</strong> %s</p>
+            <hr style="border: none; border-top: 1px solid #ddd;" />
+        </body>
+        </html>
+        """.formatted(
+            helpRequest.getHelpCategory(),
+            helpRequest.getHelpSubcategory(),
+            helpRequest.getHelpDetail(),
+            agent.getFirstName(),
+            agent.getLastName(),
+            agent.getEmail(),
+            agent.getPhoneNumber(),
+            agent.getState(),
+            agent.getCity(),
+            agent.getRole().name()
+        );
+
+        mailService.sendHtml(to, subject, htmlBody);
+        return h;
         }
         else {
             return null;

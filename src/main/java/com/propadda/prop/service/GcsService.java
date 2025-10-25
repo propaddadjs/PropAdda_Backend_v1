@@ -1,7 +1,9 @@
+// Author-Hemant Arora
 package com.propadda.prop.service;
 
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,6 +23,7 @@ import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;
 import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.Storage.CopyRequest;
 import com.google.cloud.storage.Storage.SignUrlOption;
 import com.google.cloud.storage.StorageOptions;
 
@@ -226,5 +229,30 @@ public class GcsService {
 
         // Public URL (works well for social platforms)
         return "https://storage.googleapis.com/" + shareBucket + "/" + blobName;
+    }
+
+    /**
+     * Copy an object from a source bucket/object into propadda_share under profile/agent-<id>/...
+     * Returns public URL of the copied object.
+     */
+    public String copyProfileToShareBucket(String sourceBucket, String sourceObject, Integer agentId) {
+        // Create destination name
+        String filename = Paths.get(sourceObject).getFileName().toString();
+        String destName = String.format("profile/agent-%d/%s-%s", agentId, UUID.randomUUID(), filename);
+
+        // Copy request
+        CopyRequest copyRequest = CopyRequest.newBuilder()
+            .setSource(sourceBucket, sourceObject)
+            .setTarget(BlobInfo.newBuilder(BlobId.of(shareBucket, destName)).build())
+            .build();
+
+        storage.copy(copyRequest);
+
+        // Make public read
+        BlobId targetBlobId = BlobId.of(shareBucket, destName);
+        storage.createAcl(targetBlobId, Acl.of(User.ofAllUsers(), Role.READER));
+
+        // Return public URL
+        return "https://storage.googleapis.com/" + shareBucket + "/" + destName;
     }
 }

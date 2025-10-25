@@ -1,3 +1,4 @@
+// Author-Hemant Arora
 package com.propadda.prop.controller;
 
 import java.io.IOException;
@@ -29,6 +30,8 @@ import com.propadda.prop.model.HelpDetails;
 import com.propadda.prop.security.CustomUserDetails;
 import com.propadda.prop.service.AgentService;
 import com.propadda.prop.service.GcsService;
+
+import jakarta.mail.MessagingException;
 
 
 @RestController
@@ -124,7 +127,7 @@ public class AgentController {
     }
     
     @PostMapping("/addFeedbackFromAgent")
-    public ResponseEntity<?> addFeedbackFromAgent(@RequestBody FeedbackDetails feedbackRequest, @AuthenticationPrincipal CustomUserDetails cud) {
+    public ResponseEntity<?> addFeedbackFromAgent(@RequestBody FeedbackDetails feedbackRequest, @AuthenticationPrincipal CustomUserDetails cud) throws MessagingException {
         Integer agentId = cud.getUser().getUserId();
         if(agentService.addFeedbackFromAgent(feedbackRequest,agentId)!=null)
         return ResponseEntity.ok(agentService.addFeedbackFromAgent(feedbackRequest,agentId));
@@ -133,7 +136,7 @@ public class AgentController {
     }
 
     @PostMapping("/addHelpRequestFromAgent")
-    public ResponseEntity<?> addHelpRequestFromAgent(@RequestBody HelpDetails helpRequest, @AuthenticationPrincipal CustomUserDetails cud) {
+    public ResponseEntity<?> addHelpRequestFromAgent(@RequestBody HelpDetails helpRequest, @AuthenticationPrincipal CustomUserDetails cud) throws MessagingException {
         Integer agentId = cud.getUser().getUserId();
         if(agentService.addHelpRequestFromAgent(helpRequest,agentId)!=null)
         return ResponseEntity.ok(agentService.addHelpRequestFromAgent(helpRequest,agentId));
@@ -234,6 +237,32 @@ public class AgentController {
             String publicUrl = gcsService.uploadShareImage(file, agentId);
             return ResponseEntity.ok(Collections.singletonMap("url", publicUrl));
         } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Collections.singletonMap("error", e.getMessage()));
+        }
+    }
+
+    @PostMapping("/share/copyProfile")
+    public ResponseEntity<?> copyProfileForShare(@AuthenticationPrincipal CustomUserDetails cud) {
+        try {
+            if (cud == null || cud.getUser() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                        .body(Collections.singletonMap("error", "Unauthenticated"));
+            }
+
+            Integer agentId = cud.getUser().getUserId();
+            String blobName = cud.getUser().getProfileImageUrl(); // expected: uploads/KYC/profile/....jpg
+
+            if (blobName == null || blobName.isEmpty()) {
+                return ResponseEntity.badRequest().body(Collections.singletonMap("error", "No profile image available"));
+            }
+
+            // Call service to copy into propadda_share (method provided earlier)
+            String publicUrl = gcsService.copyProfileToShareBucket(/*sourceBucket=*/ "propadda_media", blobName, agentId);
+
+            return ResponseEntity.ok(Collections.singletonMap("url", publicUrl));
+        } catch (Exception e) {
+            System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(Collections.singletonMap("error", e.getMessage()));
         }

@@ -1,3 +1,4 @@
+// Author-Hemant Arora
 package com.propadda.prop.service;
 
 import org.slf4j.Logger;
@@ -38,10 +39,10 @@ public class MailSenderService {
     public void sendHtml(String to, String subject, String html) throws MessagingException {
         MimeMessage mime = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mime, "UTF-8");
-        // helper.setFrom(from);
+        helper.setFrom(from);
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(html, true); // true -> HTML
+        helper.setText(html, true);
         mailSender.send(mime);
     }
 }

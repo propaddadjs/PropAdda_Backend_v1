@@ -1,3 +1,4 @@
+// Author-Hemant Arora
 package com.propadda.prop.service;
 
 import java.io.IOException;
@@ -1087,11 +1088,49 @@ public class UserService {
     }
 
     @Transactional
-    public Object addFeedbackFromUser(FeedbackDetails feedbackRequest, Integer userId) {
+    public Object addFeedbackFromUser(FeedbackDetails feedbackRequest, Integer userId) throws MessagingException {
          Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
         feedbackRequest.setFeedbackUser(userRepo.findById(userId).get());
-        return feedbackRepo.save(feedbackRequest);
+        FeedbackDetails f = feedbackRepo.save(feedbackRequest);
+        //email flow
+            String to = "propaddadjs@gmail.com";
+            String subject = "Feedback added by - "+user.getFirstName()+" "+user.getLastName();
+            String htmlBody = """
+            <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.5;">
+                <h2 style="color: #333;">New Feedback Received</h2>
+                <p><strong>Feedback Category:</strong> %s</p>
+                <p><strong>Feedback Subcategory:</strong> %s</p>
+                <p><strong>Feedback Message:</strong> %s</p>
+                <p><strong>Rating:</strong> %s</p>
+                <hr style="border: none; border-top: 1px solid #ddd;" />
+                <h3 style="color: #333;">User's Details:</h3>
+                <p><strong>Name:</strong> %s %s</p>
+                <p><strong>Email:</strong> %s</p>
+                <p><strong>Phone:</strong> %s</p>
+                <p><strong>State:</strong> %s</p>
+                <p><strong>City:</strong> %s</p>
+                <p><strong>Role:</strong> %s</p>
+                <hr style="border: none; border-top: 1px solid #ddd;" />
+            </body>
+            </html>
+            """.formatted(
+                feedbackRequest.getFeedbackCategory(),
+                feedbackRequest.getFeedbackSubcategory(),
+                feedbackRequest.getFeedbackDetail(),
+                feedbackRequest.getRating(),
+                user.getFirstName(),
+                user.getLastName(),
+                user.getEmail(),
+                user.getPhoneNumber(),
+                user.getState(),
+                user.getCity(),
+                user.getRole().name()
+            );
+
+            mailService.sendHtml(to, subject, htmlBody);
+        return f;
         }
         else {
             return null;
@@ -1099,11 +1138,46 @@ public class UserService {
     }
 
     @Transactional
-    public Object addHelpRequestFromUser(HelpDetails helpRequest, Integer userId) {
+    public Object addHelpRequestFromUser(HelpDetails helpRequest, Integer userId) throws MessagingException {
         Users user = userRepo.findById(userId).isPresent() ? userRepo.findById(userId).get() : null;
         if(user!=null){
         helpRequest.setHelpUser(userRepo.findById(userId).get());
-        return helpRepo.save(helpRequest);
+        HelpDetails h = helpRepo.save(helpRequest);
+        String to = "propaddadjs@gmail.com";
+        String subject = "Help request added by - "+user.getFirstName()+" "+user.getLastName();
+        String htmlBody = """
+        <html>
+        <body style="font-family: Arial, sans-serif; line-height: 1.5;">
+            <h2 style="color: #333;">New Help Request Received</h2>
+            <p><strong>Help Category:</strong> %s</p>
+            <p><strong>Help Subcategory:</strong> %s</p>
+            <p><strong>Help Message:</strong> %s</p>
+            <hr style="border: none; border-top: 1px solid #ddd;" />
+            <h3 style="color: #333;">User's Details:</h3>
+            <p><strong>Name:</strong> %s %s</p>
+            <p><strong>Email:</strong> %s</p>
+            <p><strong>Phone:</strong> %s</p>
+            <p><strong>State:</strong> %s</p>
+            <p><strong>City:</strong> %s</p>
+            <p><strong>Role:</strong> %s</p>
+            <hr style="border: none; border-top: 1px solid #ddd;" />
+        </body>
+        </html>
+        """.formatted(
+            helpRequest.getHelpCategory(),
+            helpRequest.getHelpSubcategory(),
+            helpRequest.getHelpDetail(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getEmail(),
+            user.getPhoneNumber(),
+            user.getState(),
+            user.getCity(),
+            user.getRole().name()
+        );
+
+        mailService.sendHtml(to, subject, htmlBody);
+        return h;
         }
         else {
             return null;

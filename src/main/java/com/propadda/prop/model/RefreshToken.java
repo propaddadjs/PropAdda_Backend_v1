@@ -1,4 +1,5 @@
 // src/main/java/com/propadda/prop/model/RefreshToken.java
+// Author-Hemant Arora
 package com.propadda.prop.model;
 
 import jakarta.persistence.*;
