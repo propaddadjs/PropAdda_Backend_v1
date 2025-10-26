@@ -160,7 +160,7 @@ public class ResidentialPropertyDetailsService {
         notificationRepo.save(notificationAdmin);
 
         //email flow for admin
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "New Listing Added";
         String bodyAdmin = "New Property titled- "+property.getTitle()+" added. Approve/Reject";
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);
@@ -306,7 +306,7 @@ public class ResidentialPropertyDetailsService {
         notificationRepo.save(notificationAdmin);
 
         //email flow for admin
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "New Listing Added";
         String bodyAdmin = "New Property titled- "+property.getTitle()+" added. Approve/Reject";
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);
@@ -421,7 +421,7 @@ public class ResidentialPropertyDetailsService {
         notificationRepo.save(notificationAdmin);
 
         //email flow for admin
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "Listing Updated- "+property.getTitle();
         String bodyAdmin = "Property titled- "+property.getTitle()+" updated. Approve/Reject";
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);
@@ -565,7 +565,7 @@ public class ResidentialPropertyDetailsService {
         notificationAdmin.setNotificationSenderRole(Role.AGENT);
         notificationRepo.save(notificationAdmin);
 
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "Listing Updated- " + property.getTitle();
         String bodyAdmin = "Property titled- " + property.getTitle() + " updated. Approve/Reject";
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);

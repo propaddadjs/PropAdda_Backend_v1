@@ -167,7 +167,7 @@ public class BuyerService {
         notificationRepo.save(notification);
 
         //email flow for admin
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "New Enquiry on- "+title;
         String bodyAdmin = "New enquiry on "+title+" from "+u.getFirstName()+" "+u.getLastName()+". Email: "+u.getEmail()+" and Phone number: "+u.getPhoneNumber();
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);

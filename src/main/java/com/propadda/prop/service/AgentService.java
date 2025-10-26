@@ -244,7 +244,7 @@ public class AgentService {
         feedbackRequest.setFeedbackUser(userRepo.findById(agentId).get());
         FeedbackDetails f = feedbackRepo.save(feedbackRequest);
         //email flow
-            String to = "propaddadjs@gmail.com";
+            String to = "support@propadda.in";
             String subject = "Feedback added by - "+agent.getFirstName()+" "+agent.getLastName();
             String htmlBody = """
             <html>
@@ -293,7 +293,7 @@ public class AgentService {
         if(agent!=null){
         helpRequest.setHelpUser(userRepo.findById(agentId).get());
         HelpDetails h = helpRepo.save(helpRequest);
-        String to = "propaddadjs@gmail.com";
+        String to = "support@propadda.in";
         String subject = "Help request added by - "+agent.getFirstName()+" "+agent.getLastName();
         String htmlBody = """
         <html>

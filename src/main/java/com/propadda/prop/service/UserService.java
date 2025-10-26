@@ -1094,7 +1094,7 @@ public class UserService {
         feedbackRequest.setFeedbackUser(userRepo.findById(userId).get());
         FeedbackDetails f = feedbackRepo.save(feedbackRequest);
         //email flow
-            String to = "propaddadjs@gmail.com";
+            String to = "support@propadda.in";
             String subject = "Feedback added by - "+user.getFirstName()+" "+user.getLastName();
             String htmlBody = """
             <html>
@@ -1143,7 +1143,7 @@ public class UserService {
         if(user!=null){
         helpRequest.setHelpUser(userRepo.findById(userId).get());
         HelpDetails h = helpRepo.save(helpRequest);
-        String to = "propaddadjs@gmail.com";
+        String to = "support@propadda.in";
         String subject = "Help request added by - "+user.getFirstName()+" "+user.getLastName();
         String htmlBody = """
         <html>
@@ -1221,7 +1221,7 @@ public class UserService {
         notificationRepo.save(notification);
 
         //email flow for admin
-        String toAdmin = "propaddadjs@gmail.com";
+        String toAdmin = "sales@propadda.in";
         String subjectAdmin = "KYC Request";
         String bodyAdmin = "User - "+u.getEmail()+" added KYC details. Approve/Reject";
         mailService.send(toAdmin, subjectAdmin, bodyAdmin);
