@@ -1,8 +1,8 @@
 [
   {
     "origin": ["https://propadda-frontend-v1-506455747754.asia-south2.run.app", "https://propadda.in", "https://www.propadda.in", "http://localhost:5173", "http://localhost:3000"],
-    "responseHeader": ["Content-Type", "x-goog-resumable", "x-goog-acl", "Authorization", "x-goog-meta-*", "Range", "Content-Range", "Origin"],
-    "method": ["PUT", "GET", "HEAD","POST","DELETE", "OPTIONS"],
+    "responseHeader": ["Content-Type", "Content-Length", "ETag", "x-goog-resumable", "x-goog-upload-status", "X-Goog-Upload-Protocol", "X-Goog-Upload-Command", "x-goog-upload-id", "x-goog-upload-header-content-length", "x-goog-storage-class", "x-goog-meta-*", "Authorization", "Range", "Accept", "x-requested-with", "*"],
+    "method": ["GET", "HEAD", "PUT", "POST", "DELETE", "OPTIONS"],
     "maxAgeSeconds": 3600
   }
 ]
