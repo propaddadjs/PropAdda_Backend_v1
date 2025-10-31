@@ -1,13 +1,11 @@
 [
   {
     "origin": [
-      "https://propadda-frontend-v1-506455747754.asia-south2.run.app",
       "https://propadda.in",
       "https://www.propadda.in",
-      "http://localhost:5173",
-      "http://localhost:3000"
+      "https://propadda-frontend-v1-506455747754.asia-south2.run.app"
     ],
-    "method": ["GET","HEAD","PUT","POST","DELETE","OPTIONS"],
+    "method": ["GET","HEAD","POST","PUT","OPTIONS"],
     "responseHeader": [
       "Content-Type",
       "Content-Length",
