@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -115,6 +116,17 @@ public class BuyerService {
         f.setPropertyCategory(category);
         f.setPropertyId(listingId);
         return favRepo.save(f);
+    }
+
+    public boolean removePropertyFromFavoritesForBuyer(String category, Integer listingId, Integer buyerId) {
+        Users u = userRepo.findById(buyerId).orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Optional<FavoriteListingsDetails> opt = favRepo.findByFavoritesOfBuyerAndPropertyIdAndPropertyCategory(u, listingId, category);
+        if (opt.isPresent()) {
+            favRepo.delete(opt.get());
+            return true;
+        }
+        // not found
+        return false;
     }
 
     public Boolean checkFavorite(String category, Integer listingId, Integer buyerId) {
