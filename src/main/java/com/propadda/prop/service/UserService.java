@@ -335,7 +335,7 @@ public class UserService {
        return res;
     }
 
-       public List<ResidentialPropertyResponse> getDetailedFilteredResidentialProperties(List<String> propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
+       public List<ResidentialPropertyResponse> getDetailedFilteredResidentialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
         List<ResidentialPropertyDetails> allResProp =  rRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
  
@@ -642,7 +642,7 @@ public class UserService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> getDetailedFilteredCommercialProperties(List<String> propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
+    public List<CommercialPropertyResponse> getDetailedFilteredCommercialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
         List<CommercialPropertyDetails> allComProp =  cRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         

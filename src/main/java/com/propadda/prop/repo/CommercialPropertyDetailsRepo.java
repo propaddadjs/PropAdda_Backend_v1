@@ -21,7 +21,7 @@ public interface CommercialPropertyDetailsRepo extends JpaRepository<CommercialP
 
     List<CommercialPropertyDetails> findByPreference(String preference);
 
-    List<CommercialPropertyDetails> findByPriceLessThan(Integer price);
+    List<CommercialPropertyDetails> findByPriceLessThan(Long price);
 
     List<CommercialPropertyDetails> findByAreaGreaterThan(Double area);
 

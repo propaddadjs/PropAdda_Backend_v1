@@ -38,7 +38,7 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
     // @Query("SELECT r FROM ResidentialPropertyDetails r where adminApproved= :adminApproved, sold=")
     // List<ResidentialPropertyDetails> getResPropToApplyFilter(String adminApproved, Boolean sold, Boolean expired);
 
-    // String preference, String furnishing, String state, String city, String availability, Integer priceMin, Integer priceMax, Integer areaMin, Integer areaMax
+    // String preference, String furnishing, String state, String city, String availability, Long priceMin, Long priceMax, Integer areaMin, Integer areaMax
 
     List<ResidentialPropertyDetails> findByAdminApprovedAndSoldAndExpiredAndPreferenceAndFurnishingAndStateAndCityAndAvailabilityAndPriceLessThanEqualAndPriceGreaterThanEqualAndAreaLessThanEqualAndAreaGreaterThanEqual(
     String adminApproved, 
@@ -49,8 +49,8 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
     String state, 
     String city, 
     String availability, 
-    Integer maxPrice,    // Maps to PriceLessThanEqual
-    Integer minPrice,    // Maps to PriceGreaterThanEqual
+    Long maxPrice,    // Maps to PriceLessThanEqual
+    Long minPrice,    // Maps to PriceGreaterThanEqual
     Double maxArea,      // Maps to AreaLessThanEqual (Use Double since 'area' is Double)
     Double minArea       // Maps to AreaGreaterThanEqual (Use Double since 'area' is Double)
 );

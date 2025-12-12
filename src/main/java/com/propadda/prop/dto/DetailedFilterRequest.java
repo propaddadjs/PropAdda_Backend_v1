@@ -7,8 +7,8 @@ public class DetailedFilterRequest {
     public String category;
     public List<String> propertyType;
     public String preference;
-    public Integer priceMin;
-    public Integer priceMax;
+    public Long priceMin;
+    public Long priceMax;
     public String furnishing;
     public String state;
     public String city;

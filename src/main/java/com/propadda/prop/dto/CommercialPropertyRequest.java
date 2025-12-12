@@ -8,7 +8,7 @@ public class CommercialPropertyRequest {
     private String propertyType;
     private String title;
     private String description;
-    private Integer price;
+    private Long price;
     private Double area;
     private String reraNumber;
     private Boolean reraVerified;
@@ -69,11 +69,11 @@ public class CommercialPropertyRequest {
         this.description = description;
     }
 
-    public Integer getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 

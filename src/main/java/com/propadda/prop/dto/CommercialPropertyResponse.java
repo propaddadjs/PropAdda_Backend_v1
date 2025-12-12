@@ -12,7 +12,7 @@ public class CommercialPropertyResponse {
     private String propertyType;
     private String title;
     private String description;
-    private Integer price;
+    private Long price;
     private Double area;
     private String reraNumber;
     private Boolean reraVerified;
@@ -50,7 +50,7 @@ public class CommercialPropertyResponse {
     public CommercialPropertyResponse() {
     }
 
-    public CommercialPropertyResponse(String address, String age, String adminApproved, Double area, String availability, Integer cabins, String city, OwnerResponse commercialOwner, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, Integer listingId, String locality, Integer lockIn, List<MediaResponse> mediaFiles, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Integer price, String propertyType, Boolean receptionArea, String reraNumber, Boolean reraVerified, Integer securityDeposit, Boolean sold, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
+    public CommercialPropertyResponse(String address, String age, String adminApproved, Double area, String availability, Integer cabins, String city, OwnerResponse commercialOwner, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, Integer listingId, String locality, Integer lockIn, List<MediaResponse> mediaFiles, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Long price, String propertyType, Boolean receptionArea, String reraNumber, Boolean reraVerified, Integer securityDeposit, Boolean sold, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
@@ -128,11 +128,11 @@ public class CommercialPropertyResponse {
         this.description = description;
     }
 
-    public Integer getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 

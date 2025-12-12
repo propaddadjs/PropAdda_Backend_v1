@@ -45,7 +45,7 @@ public class ResidentialPropertyDetails {
     private String description;
 
     @Column(name="price")
-    private Integer price;
+    private Long price;
 
     @Column(name="maintenance")
     private Integer maintenance;
@@ -147,7 +147,7 @@ public class ResidentialPropertyDetails {
     @Column(name = "approved_at")
     private OffsetDateTime approvedAt;
 
-    // public ResidentialPropertyDetails(String address, String age, Double area, String availability, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Integer price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors) {
+    // public ResidentialPropertyDetails(String address, String age, Double area, String availability, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Long price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors) {
     //     this.address = address;
     //     this.age = age;
     //     this.area = area;
@@ -181,7 +181,7 @@ public class ResidentialPropertyDetails {
     public ResidentialPropertyDetails() {
     }
 
-    public ResidentialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, Boolean expired, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Integer price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip) {
+    public ResidentialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, Boolean expired, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Long price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
@@ -322,11 +322,11 @@ public class ResidentialPropertyDetails {
         this.description = description;
     }
 
-    public Integer getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 

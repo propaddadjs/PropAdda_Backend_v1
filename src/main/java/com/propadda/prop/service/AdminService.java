@@ -127,7 +127,7 @@ public class AdminService {
         return prop;
     }
 
-    public Map<String, List<?>> combinedFilteredAllPropList(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public Map<String, List<?>> combinedFilteredAllPropList(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyResponse> residentialDtos = filterAllResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
         List<CommercialPropertyResponse> commercialDtos = filterAllComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
 
@@ -139,7 +139,7 @@ public class AdminService {
         return res;
     }
 
-    public Map<String, List<?>> combinedFilteredPendingPropList(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public Map<String, List<?>> combinedFilteredPendingPropList(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyResponse> residentialDtos = filterPendingResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
         List<CommercialPropertyResponse> commercialDtos = filterPendingComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
 
@@ -151,7 +151,7 @@ public class AdminService {
         return res;
     }
 
-    public Map<String, List<?>> combinedFilteredExpiredPropList(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public Map<String, List<?>> combinedFilteredExpiredPropList(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyResponse> residentialDtos = filterExpiredResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
         List<CommercialPropertyResponse> commercialDtos = filterExpiredComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
 
@@ -163,7 +163,7 @@ public class AdminService {
         return res;
     }
 
-    public Map<String, List<?>> combinedFilteredVipPropList(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public Map<String, List<?>> combinedFilteredVipPropList(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyResponse> residentialDtos = filterVipResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
         List<CommercialPropertyResponse> commercialDtos = filterVipComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
 
@@ -175,7 +175,7 @@ public class AdminService {
         return res;
     }
 
-    public List<ResidentialPropertyResponse> filterAllResProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<ResidentialPropertyResponse> filterAllResProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyDetails> allResProp =  rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -492,7 +492,7 @@ public class AdminService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> filterAllComProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<CommercialPropertyResponse> filterAllComProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<CommercialPropertyDetails> allComProp =  cpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -622,7 +622,7 @@ public class AdminService {
         return filteredCommercialDtos;
     }
 
-    public List<ResidentialPropertyResponse> filterPendingResProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<ResidentialPropertyResponse> filterPendingResProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyDetails> allResProp =  rpdRepo.findByAdminApprovedAndSoldAndExpired("Pending",false,false);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -938,7 +938,7 @@ public class AdminService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> filterPendingComProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<CommercialPropertyResponse> filterPendingComProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<CommercialPropertyDetails> allComProp =  cpdRepo.findByAdminApprovedAndSoldAndExpired("Pending",false,false);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -1069,7 +1069,7 @@ public class AdminService {
     }
 
 
-    public List<ResidentialPropertyResponse> filterExpiredResProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<ResidentialPropertyResponse> filterExpiredResProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyDetails> allResProp =  rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,true);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -1385,7 +1385,7 @@ public class AdminService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> filterExpiredComProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<CommercialPropertyResponse> filterExpiredComProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<CommercialPropertyDetails> allComProp =  cpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,true);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -1516,7 +1516,7 @@ public class AdminService {
     }
 
 
-    public List<ResidentialPropertyResponse> filterVipResProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<ResidentialPropertyResponse> filterVipResProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<ResidentialPropertyDetails> allResProp =  rpdRepo.findByAdminApprovedAndSoldAndExpiredAndVip("Approved",false,false,true);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();
@@ -1832,7 +1832,7 @@ public class AdminService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> filterVipComProp(String propertyTypes, String preference, Integer priceMin, Integer priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
+    public List<CommercialPropertyResponse> filterVipComProp(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){
         List<CommercialPropertyDetails> allComProp =  cpdRepo.findByAdminApprovedAndSoldAndExpiredAndVip("Approved",false,false,true);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         List<String> propTypes = propertyTypes!=null ? Arrays.asList(propertyTypes.split(",")) : new ArrayList<>();

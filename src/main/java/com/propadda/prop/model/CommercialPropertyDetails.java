@@ -44,7 +44,7 @@ public class CommercialPropertyDetails {
     private String description;
 
     @Column(name="price", nullable = false)
-    private Integer price;
+    private Long price;
 
     @Column(name="area", nullable = false)
     private Double area;
@@ -145,7 +145,7 @@ public class CommercialPropertyDetails {
     public CommercialPropertyDetails() {
     }
 
-    public CommercialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer cabins, String city, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, String locality, Integer lockIn, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Integer price, String propertyType, Boolean receptionArea, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
+    public CommercialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer cabins, String city, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, String locality, Integer lockIn, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Long price, String propertyType, Boolean receptionArea, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
@@ -203,8 +203,8 @@ public class CommercialPropertyDetails {
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public Integer getPrice() { return price; }
-    public void setPrice(Integer price) { this.price = price; }
+    public Long getPrice() { return price; }
+    public void setPrice(Long price) { this.price = price; }
 
     public Double getArea() { return area; }
     public void setArea(Double area) { this.area = area; }

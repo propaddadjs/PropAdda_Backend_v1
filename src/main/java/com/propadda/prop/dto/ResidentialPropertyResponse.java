@@ -12,7 +12,7 @@ public class ResidentialPropertyResponse {
     private String propertyType;
     private String title;
     private String description;
-    private Integer price;
+    private Long price;
     private Integer maintenance;
     private Double area;
     private Integer bedrooms;
@@ -124,7 +124,7 @@ public class ResidentialPropertyResponse {
     public ResidentialPropertyResponse() {
     }
 
-    public ResidentialPropertyResponse(String address, String age, String adminApproved, Boolean airyRooms, Double area, String availability, Integer balconies, Boolean bankAttachedProperty, Integer bathrooms, Integer bedrooms, Boolean borewellTank, Boolean centerCooling, Boolean centrallyAirConditioned, String city, Boolean closeToAirport, Boolean closeToHighway, Boolean closeToHospital, Boolean closeToMall, Boolean closeToMarket, Boolean closeToMetroStation, Boolean closeToRailwayStation, Boolean closeToSchool, Boolean clubhouseCommunityCenter, Boolean cornerProperty, Integer coveredParking, String description, Boolean dishwasher, Boolean dryer, Boolean elevator, Boolean emergencyExit, Boolean expired, String facing, Boolean falseCeilingLighting, Boolean fireAlarm, Boolean fitnessCenter, Integer floor, String furnishing, Boolean gasPipeline, Boolean gym, Boolean heating, Boolean highCeilingHeight, Boolean inGatedSociety, Boolean intercomFacility, Boolean internetConnectivity, Boolean laundry, Boolean lifts, Integer listingId, String locality, Boolean lowDensitySociety, Integer maintenance, Boolean maintenanceStaff, List<MediaResponse> mediaFiles, Boolean modularKitchen, Boolean municipalCorporation, Boolean naturalLight, String nearbyPlace, Boolean noOpenDrainageAround, Integer openParking, Boolean overlookingClub, Boolean overlookingMainRoad, Boolean overlookingParkGarden, Boolean overlookingPool, Boolean park, Boolean petFriendly, Boolean petFriendlySociety, Integer pincode, Boolean poojaRoom, Boolean pool, String powerBackup, String preference, Integer price, Boolean privateGardenTerrace, String propertyType, Boolean rainWaterHarvesting, Boolean recentlyRenovated, String reraNumber, Boolean reraVerified, OwnerResponse residentialOwner, Boolean sauna, Integer securityDeposit, Boolean securityFireAlarm, Boolean securityPersonnel, Boolean separateEntryForServantRoom, Boolean servantRoom, Boolean sold, Boolean spaciousInteriors, String state, Boolean storage, Boolean storeRoom, Boolean studyRoom, Boolean swimmingPool, String title, Integer totalFloors, Boolean vastuCompliant, Boolean vip, Boolean water24x7, Boolean waterPurifier, Boolean wheelchairFriendly) {
+    public ResidentialPropertyResponse(String address, String age, String adminApproved, Boolean airyRooms, Double area, String availability, Integer balconies, Boolean bankAttachedProperty, Integer bathrooms, Integer bedrooms, Boolean borewellTank, Boolean centerCooling, Boolean centrallyAirConditioned, String city, Boolean closeToAirport, Boolean closeToHighway, Boolean closeToHospital, Boolean closeToMall, Boolean closeToMarket, Boolean closeToMetroStation, Boolean closeToRailwayStation, Boolean closeToSchool, Boolean clubhouseCommunityCenter, Boolean cornerProperty, Integer coveredParking, String description, Boolean dishwasher, Boolean dryer, Boolean elevator, Boolean emergencyExit, Boolean expired, String facing, Boolean falseCeilingLighting, Boolean fireAlarm, Boolean fitnessCenter, Integer floor, String furnishing, Boolean gasPipeline, Boolean gym, Boolean heating, Boolean highCeilingHeight, Boolean inGatedSociety, Boolean intercomFacility, Boolean internetConnectivity, Boolean laundry, Boolean lifts, Integer listingId, String locality, Boolean lowDensitySociety, Integer maintenance, Boolean maintenanceStaff, List<MediaResponse> mediaFiles, Boolean modularKitchen, Boolean municipalCorporation, Boolean naturalLight, String nearbyPlace, Boolean noOpenDrainageAround, Integer openParking, Boolean overlookingClub, Boolean overlookingMainRoad, Boolean overlookingParkGarden, Boolean overlookingPool, Boolean park, Boolean petFriendly, Boolean petFriendlySociety, Integer pincode, Boolean poojaRoom, Boolean pool, String powerBackup, String preference, Long price, Boolean privateGardenTerrace, String propertyType, Boolean rainWaterHarvesting, Boolean recentlyRenovated, String reraNumber, Boolean reraVerified, OwnerResponse residentialOwner, Boolean sauna, Integer securityDeposit, Boolean securityFireAlarm, Boolean securityPersonnel, Boolean separateEntryForServantRoom, Boolean servantRoom, Boolean sold, Boolean spaciousInteriors, String state, Boolean storage, Boolean storeRoom, Boolean studyRoom, Boolean swimmingPool, String title, Integer totalFloors, Boolean vastuCompliant, Boolean vip, Boolean water24x7, Boolean waterPurifier, Boolean wheelchairFriendly) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
@@ -265,11 +265,11 @@ public class ResidentialPropertyResponse {
         this.description = description;
     }
 
-    public Integer getPrice() {
+    public Long getPrice() {
         return price;
     }
 
-    public void setPrice(Integer price) {
+    public void setPrice(Long price) {
         this.price = price;
     }
 
