@@ -10,9 +10,15 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import com.propadda.prop.dto.AgentResponse;
+import com.propadda.prop.dto.AllPropertyViewResponse;
 import com.propadda.prop.dto.CommercialPropertyResponse;
 import com.propadda.prop.dto.LeadsResponse;
 import com.propadda.prop.dto.MediaProductionResponse;
@@ -25,9 +31,11 @@ import com.propadda.prop.enumerations.RejectionType;
 import com.propadda.prop.enumerations.Role;
 import com.propadda.prop.exceptions.ResourceNotFoundException;
 import com.propadda.prop.mappers.AgentMapper;
+import com.propadda.prop.mappers.AllPropertyViewMapper;
 import com.propadda.prop.mappers.CommercialPropertyMapper;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.mappers.UserMapper;
+import com.propadda.prop.model.AllPropertyView;
 import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.model.EnquiredListingsDetails;
 import com.propadda.prop.model.MediaProduction;
@@ -35,6 +43,7 @@ import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.model.RejectionDetails;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
+import com.propadda.prop.repo.AllPropertyViewRepository;
 import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
 import com.propadda.prop.repo.EnquiredListingsDetailsRepo;
 import com.propadda.prop.repo.MediaProductionRepo;
@@ -68,6 +77,9 @@ public class AdminService {
     EnquiredListingsDetailsRepo enqRepo;
 
     @Autowired
+    AllPropertyViewRepository allPropertyViewRepo;
+
+    @Autowired
     MediaProductionRepo mpRepo;
 
     @Autowired
@@ -76,15 +88,36 @@ public class AdminService {
     @Autowired
     private MailSenderService mailService;
 
-    public Map<String,List<?>> getAllProperties(){
-        
-        List<ResidentialPropertyDetails> rpd = rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
-        List<CommercialPropertyDetails> cpd = cpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
+    @Autowired
+    private AllPropertyViewMapper allPropertyViewMapper;
 
-        Map<String, List<?>> prop = new HashMap<>();
-        prop.put("commercial",ResidentialPropertyMapper.toDtoList(rpd));
-        prop.put("residential",CommercialPropertyMapper.toDtoList(cpd));
-        return prop;
+    // public Map<String,List<?>> getAllProperties(int page, int size){
+    //     Pageable pageable = PageRequest.of(page, size, Sort.by("listingId").descending());
+    //     Page<ResidentialPropertyDetails> rpd = rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false,pageable);
+    //     List<CommercialPropertyDetails> cpd = cpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
+
+    //     Map<String, List<?>> prop = new HashMap<>();
+    //     prop.put("commercial",ResidentialPropertyMapper.toDtoList(rpd.getContent()));
+    //     prop.put("residential",CommercialPropertyMapper.toDtoList(cpd));
+    //     return prop;
+    // }
+    public Page<AllPropertyViewResponse> getAllProperties(int page, int size) {
+
+        Pageable pageable = PageRequest.of(
+            page, size, Sort.by(Sort.Direction.DESC, "approvedAt")
+        );
+
+        Page<AllPropertyView> pageResult = allPropertyViewRepo
+            .findByAdminApprovedAndExpiredAndSold(
+                "Approved", false, false, pageable
+            );
+        List<AllPropertyViewResponse> dtoList =
+                allPropertyViewMapper.toDtoList(pageResult.getContent());
+        return new PageImpl<>(
+                dtoList,
+                pageable,
+                pageResult.getTotalElements()
+        );
     }
 
     public Map<String,List<?>> getExpiredProperties(){

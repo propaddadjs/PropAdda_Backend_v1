@@ -33,8 +33,8 @@ public class AdminController {
     private AdminService adminService;
 
     @GetMapping("/allProperties")
-    public ResponseEntity<?> getAllProperties() {
-        return ResponseEntity.ok(adminService.getAllProperties());
+    public ResponseEntity<?> getAllProperties(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getAllProperties(page,size));
     }
 
     @GetMapping("/pendingProperties")

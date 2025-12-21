@@ -5,6 +5,8 @@ import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -31,6 +33,14 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
 
     List<ResidentialPropertyDetails> findByAdminApprovedAndSoldAndExpired(String adminApproved, Boolean sold, Boolean expired);
 
+    Page<ResidentialPropertyDetails>
+    findByAdminApprovedAndSoldAndExpired(
+        String adminApproved,
+        Boolean sold,
+        Boolean expired,
+        Pageable pageable
+    );
+    
     List<ResidentialPropertyDetails> findByAdminApprovedAndSoldAndExpiredAndVip(String adminApproved, Boolean sold, Boolean expired, Boolean vip);
 
     List<ResidentialPropertyDetails> findBySold(Boolean sold);
