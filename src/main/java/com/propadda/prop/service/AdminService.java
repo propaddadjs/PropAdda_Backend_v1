@@ -4,6 +4,7 @@ package com.propadda.prop.service;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -158,6 +159,72 @@ public class AdminService {
         prop.put("commercial",ResidentialPropertyMapper.toDtoList(rpd));
         prop.put("residential",CommercialPropertyMapper.toDtoList(cpd));
         return prop;
+    }
+
+    public Page<AllPropertyViewResponse> filterAllPropertiesPaged(
+            String category,
+            String propertyTypes,
+            String preference,
+            Long priceMin,
+            Long priceMax,
+            String furnishing,
+            String state,
+            String city,
+            String amenities,
+            String availability,
+            Integer areaMin,
+            Integer areaMax,
+            String ageRanges,
+            int page,
+            int size
+    ) {
+        List<AllPropertyViewResponse> combined = new ArrayList<>();
+
+        if (category == null || category.equalsIgnoreCase("Residential")) {
+            List<ResidentialPropertyResponse> res =
+                filterAllResProp(propertyTypes, preference, priceMin, priceMax,
+                    furnishing, state, city, amenities, availability,
+                    areaMin, areaMax, ageRanges);
+
+            combined.addAll(
+                res.stream()
+                .map(ResidentialPropertyMapper::toAllViewDto)
+                .toList()
+            );
+        }
+
+        if (category == null || category.equalsIgnoreCase("Commercial")) {
+            List<CommercialPropertyResponse> com =
+                filterAllComProp(propertyTypes, preference, priceMin, priceMax,
+                    furnishing, state, city, amenities, availability,
+                    areaMin, areaMax, ageRanges);
+
+            combined.addAll(
+                com.stream()
+                .map(CommercialPropertyMapper::toAllViewDto)
+                .toList()
+            );
+        }
+
+        // 🔽 SORT (same as allProperties)
+        combined.sort(
+            Comparator.comparing(AllPropertyViewResponse::getApprovedAt)
+                    .reversed()
+        );
+
+        // 🔽 PAGINATION
+        int start = page * size;
+        int end = Math.min(start + size, combined.size());
+        List<AllPropertyViewResponse> pageContent =
+            start > combined.size() ? List.of() : combined.subList(start, end);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new PageImpl<>(
+            pageContent,
+            pageable,
+            combined.size() // ✅ totalElements
+        );
     }
 
     public Map<String, List<?>> combinedFilteredAllPropList(String propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, String amenities, String availability, Integer areaMin, Integer areaMax, String ageRanges){

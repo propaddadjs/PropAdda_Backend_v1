@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.propadda.prop.dto.AllPropertyViewResponse;
+import com.propadda.prop.dto.MediaResponse;
 import com.propadda.prop.dto.ResidentialPropertyRequest;
 import com.propadda.prop.dto.ResidentialPropertyResponse;
 import com.propadda.prop.model.ResidentialPropertyAmenities;
@@ -281,5 +283,62 @@ public class ResidentialPropertyMapper {
         
         model.setAmenities(amenities);
         return model;
+    }
+
+    public static AllPropertyViewResponse toAllViewDto(ResidentialPropertyResponse src) {
+        if (src == null) {
+            return null;
+        }
+
+        AllPropertyViewResponse dto = new AllPropertyViewResponse();
+
+        dto.setListingId(src.getListingId());
+        dto.setCategory(src.getCategory());
+        dto.setPreference(src.getPreference());
+        dto.setPropertyType(src.getPropertyType());
+        dto.setTitle(src.getTitle());
+        dto.setDescription(src.getDescription());
+        dto.setPrice(src.getPrice());
+        dto.setArea(src.getArea());
+
+        // Residential-specific
+        dto.setBedrooms(src.getBedrooms());
+        dto.setBathrooms(src.getBathrooms());
+
+        // Location
+        dto.setState(src.getState());
+        dto.setCity(src.getCity());
+        dto.setLocality(src.getLocality());
+        dto.setAddress(src.getAddress());
+
+        // Status
+        dto.setExpired(src.isExpired());
+        dto.setVip(src.isVip());
+        dto.setSold(src.getSold());
+        dto.setReraVerified(src.getReraVerified());
+        dto.setReraNumber(src.getReraNumber());
+
+        dto.setCreatedAt(src.getCreatedAt());
+        dto.setApprovedAt(src.getApprovedAt());
+
+        // Owner flattening
+        if (src.getResidentialOwner() != null) {
+            dto.setFirstName(src.getResidentialOwner().getFirstName());
+            dto.setLastName(src.getResidentialOwner().getLastName());
+            dto.setEmail(src.getResidentialOwner().getEmail());
+            dto.setPhoneNumber(src.getResidentialOwner().getPhoneNumber());
+        }
+
+        // Media (pick first image)
+        if (src.getMediaFiles() != null && !src.getMediaFiles().isEmpty()) {
+            for(MediaResponse m : src.getMediaFiles()){
+                if(m.getOrd()==1){
+                    dto.setMediaUrl(m.getUrl());
+                }
+            }
+            // dto.setMediaUrl(src.getMediaFiles().get(0).getUrl());
+        }
+
+        return dto;
     }
 }

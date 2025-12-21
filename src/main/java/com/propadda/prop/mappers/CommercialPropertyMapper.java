@@ -5,12 +5,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.propadda.prop.dto.AllPropertyViewResponse;
 import com.propadda.prop.dto.CommercialPropertyRequest;
 import com.propadda.prop.dto.CommercialPropertyResponse;
+import com.propadda.prop.dto.MediaResponse;
 import com.propadda.prop.model.CommercialPropertyDetails;
 
 public class CommercialPropertyMapper {
-
     // Maps a single CommercialPropertyDetails entity to a CommercialPropertyResponse DTO
     public static CommercialPropertyResponse toDto(CommercialPropertyDetails entity) {
         if (entity == null) {
@@ -125,5 +126,64 @@ public class CommercialPropertyMapper {
         model.setNearbyPlace(request.getNearbyPlace());
         
         return model;
+    }
+
+    public static AllPropertyViewResponse toAllViewDto(CommercialPropertyResponse src) {
+        if (src == null) {
+            return null;
+        }
+
+        AllPropertyViewResponse dto = new AllPropertyViewResponse();
+
+        dto.setListingId(src.getListingId());
+        dto.setCategory(src.getCategory());
+        dto.setPreference(src.getPreference());
+        dto.setPropertyType(src.getPropertyType());
+        dto.setTitle(src.getTitle());
+        dto.setDescription(src.getDescription());
+        dto.setPrice(src.getPrice());
+        dto.setArea(src.getArea());
+
+        // Commercial-specific
+        dto.setCabins(src.getCabins());
+        dto.setMeetingRoom(src.getMeetingRoom());
+        dto.setWashroom(src.getWashroom());
+
+        // Location
+        dto.setState(src.getState());
+        dto.setCity(src.getCity());
+        dto.setLocality(src.getLocality());
+        dto.setAddress(src.getAddress());
+
+        // Status
+        dto.setExpired(src.isExpired());
+        dto.setVip(src.isVip());
+        dto.setSold(src.getSold());
+        dto.setReraVerified(src.getReraVerified());
+        dto.setReraNumber(src.getReraNumber());
+
+        dto.setCreatedAt(src.getCreatedAt());
+        dto.setApprovedAt(src.getApprovedAt());
+
+        // Owner flattening
+        if (src.getCommercialOwner() != null) {
+            dto.setFirstName(src.getCommercialOwner().getFirstName());
+            dto.setLastName(src.getCommercialOwner().getLastName());
+            dto.setEmail(src.getCommercialOwner().getEmail());
+            dto.setPhoneNumber(src.getCommercialOwner().getPhoneNumber());
+        }
+
+        // Media
+        if (src.getMediaFiles() != null && !src.getMediaFiles().isEmpty()) {
+            // List<MediaResponse> l = src.getMediaFiles();
+            for(MediaResponse m : src.getMediaFiles()){
+                if(m.getOrd()==1){
+                    dto.setMediaUrl(m.getUrl());
+                }
+            }
+            // dto.setMediaUrl(src.getMediaFiles().get(0).getUrl());
+        }
+
+        return dto;
     }
 }

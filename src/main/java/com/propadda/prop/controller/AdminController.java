@@ -89,28 +89,37 @@ public class AdminController {
         System.out.println("areaMax: "+areaMax);
         System.out.println("ageRanges: "+ageRanges);
 
-        Map<String, List<?>> response = new HashMap<>();
-        if(category==null){
-            response = adminService.combinedFilteredAllPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        } else
-        if(category.equalsIgnoreCase("Residential")){
-            List<ResidentialPropertyResponse> resProp = adminService.filterAllResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",resProp);
-            response.put("commercial",null);
-            System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else
-        if(category.equalsIgnoreCase("Commercial")){
-            List<CommercialPropertyResponse> comProp = adminService.filterAllComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",null);
-            response.put("commercial",comProp);
-            System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else{
-            System.out.println("Response set as null");
-            response = null;
-        }
+    //     Map<String, List<?>> response = new HashMap<>();
+    //     if(category==null){
+    //         response = adminService.combinedFilteredAllPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     } else
+    //     if(category.equalsIgnoreCase("Residential")){
+    //         List<ResidentialPropertyResponse> resProp = adminService.filterAllResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",resProp);
+    //         response.put("commercial",null);
+    //         System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else
+    //     if(category.equalsIgnoreCase("Commercial")){
+    //         List<CommercialPropertyResponse> comProp = adminService.filterAllComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",null);
+    //         response.put("commercial",comProp);
+    //         System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else{
+    //         System.out.println("Response set as null");
+    //         response = null;
+    //     }
 
-    return ResponseEntity.ok(response);
+    // return ResponseEntity.ok(response);
+    return ResponseEntity.ok(
+        adminService.filterAllPropertiesPaged(
+            category, propertyTypes, preference,
+            priceMin, priceMax, furnishing,
+            state, city, amenities, availability,
+            areaMin, areaMax, ageRanges,
+            page, size
+        )
+    );
     }
 
     @GetMapping("/filterPendingProperties")
