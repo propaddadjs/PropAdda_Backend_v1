@@ -8,11 +8,17 @@ import java.time.Instant;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +31,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.propadda.prop.config.JwtService;
 import com.propadda.prop.dto.AgentResponse;
+import com.propadda.prop.dto.AllPropertyViewResponse;
 import com.propadda.prop.dto.CommercialPropertyResponse;
 import com.propadda.prop.dto.DetailedFilterRequest;
 import com.propadda.prop.dto.FilterRequest;
@@ -315,27 +322,79 @@ public class UserService {
             return filteredCommercialDtos;
     }
 
-    public Map<String, List<?>> getDetailedFilteredProperties(DetailedFilterRequest filters) {
-        System.out.println("Filters applied: "+filters.toString());
-        Map<String, List<?>> res = new HashMap<>();
-        List<ResidentialPropertyResponse> resRes = getDetailedFilteredResidentialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
-        List<CommercialPropertyResponse> comRes = getDetailedFilteredCommercialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
-        if(filters.category.equalsIgnoreCase("residential")){
-            res.put("residential", resRes);
-            res.put("commercial", null);
-        } else
-        if(filters.category.equalsIgnoreCase("commercial")){
-            res.put("residential", null);
-            res.put("commercial", comRes);
+    public Page<AllPropertyViewResponse> getDetailedFilteredPropertiesPaged(DetailedFilterRequest filters, String search, String sortBy, int page, int size) {
+        List<AllPropertyViewResponse> combined = new ArrayList<>();
+
+        if (filters.category.equalsIgnoreCase("All") || filters.category.equalsIgnoreCase("Residential")) {
+            List<ResidentialPropertyResponse> res = getDetailedFilteredResidentialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age,search);
+
+            combined.addAll(
+                res.stream()
+                .map(ResidentialPropertyMapper::toAllViewDto)
+                .toList()
+            );
         }
-        else {        
-            res.put("residential", resRes);
-            res.put("commercial", comRes);
+
+        if (filters.category.equalsIgnoreCase("All") || filters.category.equalsIgnoreCase("Commercial")) {
+            List<CommercialPropertyResponse> com = getDetailedFilteredCommercialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age,search);
+
+            combined.addAll(
+                com.stream()
+                .map(CommercialPropertyMapper::toAllViewDto)
+                .toList()
+            );
         }
-       return res;
+
+        // 🔽 SORT 
+        if(sortBy==null || sortBy.isEmpty() || sortBy.equalsIgnoreCase(""))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+        else if(sortBy.equalsIgnoreCase("priceAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice));
+        else if(sortBy.equalsIgnoreCase("priceDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice).reversed());
+        else if(sortBy.equalsIgnoreCase("areaAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea));
+        else if(sortBy.equalsIgnoreCase("areaDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea).reversed());
+        else
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+
+        // 🔽 PAGINATION
+        int start = page * size;
+        int end = Math.min(start + size, combined.size());
+        List<AllPropertyViewResponse> pageContent =
+            start > combined.size() ? List.of() : combined.subList(start, end);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new PageImpl<>(
+            pageContent,
+            pageable,
+            combined.size() // ✅ totalElements
+        );
     }
 
-       public List<ResidentialPropertyResponse> getDetailedFilteredResidentialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
+    // public Map<String, List<?>> getDetailedFilteredProperties(DetailedFilterRequest filters) {
+    //     System.out.println("Filters applied: "+filters.toString());
+    //     Map<String, List<?>> res = new HashMap<>();
+    //     List<ResidentialPropertyResponse> resRes = getDetailedFilteredResidentialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
+    //     List<CommercialPropertyResponse> comRes = getDetailedFilteredCommercialProperties(filters.propertyType,filters.preference,filters.priceMin,filters.priceMax,filters.furnishing,filters.state,filters.city,filters.amenities,filters.availability,filters.areaMin,filters.areaMax,filters.age);
+    //     if(filters.category.equalsIgnoreCase("residential")){
+    //         res.put("residential", resRes);
+    //         res.put("commercial", null);
+    //     } else
+    //     if(filters.category.equalsIgnoreCase("commercial")){
+    //         res.put("residential", null);
+    //         res.put("commercial", comRes);
+    //     }
+    //     else {        
+    //         res.put("residential", resRes);
+    //         res.put("commercial", comRes);
+    //     }
+    //    return res;
+    // }
+
+       public List<ResidentialPropertyResponse> getDetailedFilteredResidentialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges, String search){
         List<ResidentialPropertyDetails> allResProp =  rRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<ResidentialPropertyDetails> filteredList =  new ArrayList<>();
  
@@ -351,6 +410,7 @@ public class UserService {
             boolean areaMinValue = false;
             boolean areaMaxValue = false;
             boolean ageRangesValue = false;
+            boolean searchValue;
             boolean amenitiesValue; //= false;
 
             boolean isElevator=false; 
@@ -433,7 +493,7 @@ public class UserService {
             if(availability==null || availability.equalsIgnoreCase("all") || availability.equalsIgnoreCase("")){
                 availabilityValue = true;
             } else
-            if(rpd.getAvailability().equalsIgnoreCase(availability)){
+            if(rpd.getAvailability()!=null && rpd.getAvailability().equalsIgnoreCase(availability)){
                 availabilityValue = rpd.getAvailability().equalsIgnoreCase(availability);
             }
     System.out.println("Inside filterResProp, for listingId: "+rpd.getListingId()+" value of availabilityValue:: "+availabilityValue);
@@ -461,6 +521,24 @@ public class UserService {
                 ageRangesValue = ageRanges.contains(rpd.getAge());
             }
     System.out.println("Inside filterResProp, for listingId: "+rpd.getListingId()+" value of ageRangesValue:: "+ageRangesValue);
+
+            if (search == null || search.trim().isEmpty()) {
+                searchValue = true;
+            } else {
+                String query = search.toLowerCase();
+                
+                searchValue = Stream.of(
+                    rpd.getTitle(), 
+                    rpd.getDescription(), 
+                    rpd.getAddress(), 
+                    rpd.getLocality(), 
+                    rpd.getCity(), 
+                    rpd.getState()
+                )
+                .filter(field -> field != null) // Ignore null fields
+                .anyMatch(field -> field.toLowerCase().contains(query));
+            }
+    System.out.println("Inside filterResProp, for listingId: "+rpd.getListingId()+" value of searchValue:: "+searchValue);
 
             if(amenities==null || amenities.isEmpty()){
                 isElevator=true;
@@ -630,7 +708,7 @@ public class UserService {
         System.out.println("Inside filterResProp, for listingId: "+rpd.getListingId()+" value of amenitiesValue:: "+amenitiesValue);
 
             if(propertyTypeValue && preferenceValue && priceMinValue && priceMaxValue && furnishingValue && stateValue && cityValue && availabilityValue && areaMinValue && areaMaxValue && ageRangesValue &&
-            amenitiesValue
+            amenitiesValue && searchValue
             )
             {
                 filteredList.add(rpd);
@@ -642,7 +720,7 @@ public class UserService {
         return filteredResidentialDtos;
     }
 
-    public List<CommercialPropertyResponse> getDetailedFilteredCommercialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges){
+    public List<CommercialPropertyResponse> getDetailedFilteredCommercialProperties(List<String> propertyTypes, String preference, Long priceMin, Long priceMax, String furnishing, String state, String city, List<String> amenities, String availability, Double areaMin, Double areaMax, List<String> ageRanges, String search){
         List<CommercialPropertyDetails> allComProp =  cRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,false);
         List<CommercialPropertyDetails> filteredList =  new ArrayList<>();
         
@@ -660,6 +738,7 @@ public class UserService {
             boolean ageRangesValue = false;
             boolean furnishingValue = false;
             boolean amenitiesValue = false;
+            boolean searchValue;
 
             if(propertyTypes==null || propertyTypes.isEmpty()){
                 propertyTypeValue = true;
@@ -741,6 +820,24 @@ public class UserService {
             }
         System.out.println("Inside filterComProp, for listingId: "+cpd.getListingId()+" value of ageRangesValue:: "+ageRangesValue);
 
+        if (search == null || search.trim().isEmpty()) {
+                searchValue = true;
+        } else {
+            String query = search.toLowerCase();
+            
+            searchValue = Stream.of(
+                cpd.getTitle(), 
+                cpd.getDescription(), 
+                cpd.getAddress(), 
+                cpd.getLocality(), 
+                cpd.getCity(), 
+                cpd.getState()
+            )
+            .filter(field -> field != null) // Ignore null fields
+            .anyMatch(field -> field.toLowerCase().contains(query));
+        }
+    System.out.println("Inside filterComProp, for listingId: "+cpd.getListingId()+" value of searchValue:: "+searchValue);
+
             if(furnishing==null || furnishing.equalsIgnoreCase("all") || furnishing.equalsIgnoreCase("")){
                 furnishingValue=true;
             }
@@ -751,7 +848,7 @@ public class UserService {
             }
         System.out.println("Inside filterComProp, for listingId: "+cpd.getListingId()+" value of amenitiesValue:: "+amenitiesValue);
 
-            if(propertyTypeValue && preferenceValue && priceMinValue && priceMaxValue && stateValue && cityValue && availabilityValue && areaMinValue && areaMaxValue && ageRangesValue &&furnishingValue && amenitiesValue
+            if(propertyTypeValue && preferenceValue && priceMinValue && priceMaxValue && stateValue && cityValue && availabilityValue && areaMinValue && areaMaxValue && ageRangesValue &&furnishingValue && amenitiesValue && searchValue
             ){
                 filteredList.add(cpd);
             System.out.println("---------Added into commercial filtered list::::::::"+cpd.getListingId());
@@ -763,6 +860,169 @@ public class UserService {
         return filteredCommercialDtos;
     }
 
+    public Page<AllPropertyViewResponse> filterByPreferenceAndLocationPaged(String preference, String state, String city, String locality, String search, String sortBy, int page, int size) {
+
+        List<AllPropertyViewResponse> combined = new ArrayList<>();
+
+        List<ResidentialPropertyDetails> allResProp =  rRepo.findByAdminApprovedAndSoldAndExpired("Approved",false, false);
+           
+        List<CommercialPropertyDetails> allComProp =  cRepo.findByAdminApprovedAndSoldAndExpired("Approved",false, false);
+
+        List<ResidentialPropertyDetails> filteredRes =  new ArrayList<>();
+           
+        List<CommercialPropertyDetails> filteredCom =  new ArrayList<>();
+
+        System.out.println("filterByPreferenceAndLocation ::: preference: "+preference+", state: "+state+", city: "+city+", locality: "+locality);
+
+        for(ResidentialPropertyDetails r : allResProp){
+            Boolean stateValue=false;
+            Boolean cityValue=false;
+            Boolean localityValue=false;
+            Boolean searchValue;
+
+            if(state==null || state.equalsIgnoreCase("")){
+                stateValue=true;
+            } else
+            if(r.getState().equalsIgnoreCase(state)){
+                stateValue= r.getState().equalsIgnoreCase(state);
+            }
+
+                if(city==null || city.equalsIgnoreCase("")){
+                    cityValue=true;
+                } else
+                if(r.getCity().equalsIgnoreCase(city)){
+                    cityValue= r.getCity().equalsIgnoreCase(city);
+                }
+
+            if(locality==null || locality.equalsIgnoreCase("")){
+                localityValue=true;
+            } else
+            if(r.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            r.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            r.getTitle().toLowerCase().contains(locality.toLowerCase())
+            ){
+                localityValue= r.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            r.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            r.getTitle().toLowerCase().contains(locality.toLowerCase());
+            }
+
+        if (search == null || search.trim().isEmpty()) {
+            searchValue = true;
+        } else {
+            String query = search.toLowerCase();
+            
+            searchValue = Stream.of(
+                r.getTitle(), 
+                r.getDescription(), 
+                r.getAddress(), 
+                r.getLocality(), 
+                r.getCity(), 
+                r.getState()
+            )
+            .filter(field -> field != null) // Ignore null fields
+            .anyMatch(field -> field.toLowerCase().contains(query));
+        }
+
+        if(r.getPreference().equalsIgnoreCase(preference) && stateValue && cityValue && localityValue && searchValue){
+            filteredRes.add(r);
+        }
+
+        }
+
+        for(CommercialPropertyDetails c: allComProp){
+
+            Boolean stateValue=false;
+            Boolean cityValue=false;
+            Boolean localityValue=false;
+            Boolean searchValue;
+
+            if(state==null || state.equalsIgnoreCase("")){
+                stateValue=true;
+            } else
+            if(c.getState().equalsIgnoreCase(state)){
+                stateValue= c.getState().equalsIgnoreCase(state);
+            }
+
+                if(city==null || city.equalsIgnoreCase("")){
+                    cityValue=true;
+                } else
+                if(c.getCity().equalsIgnoreCase(city)){
+                    cityValue= c.getCity().equalsIgnoreCase(city);
+                }
+
+            if(locality==null || locality.equalsIgnoreCase("")){
+                localityValue=true;
+            } else
+            if(c.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            c.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            c.getTitle().toLowerCase().contains(locality.toLowerCase())){
+                localityValue= c.getLocality().toLowerCase().contains(locality.toLowerCase()) || 
+            c.getNearbyPlace().toLowerCase().contains(locality.toLowerCase()) ||
+            c.getTitle().toLowerCase().contains(locality.toLowerCase());
+            }
+
+        if (search == null || search.trim().isEmpty()) {
+            searchValue = true;
+        } else {
+            String query = search.toLowerCase();
+            
+            searchValue = Stream.of(
+                c.getTitle(), 
+                c.getDescription(), 
+                c.getAddress(), 
+                c.getLocality(), 
+                c.getCity(), 
+                c.getState()
+            )
+            .filter(field -> field != null) // Ignore null fields
+            .anyMatch(field -> field.toLowerCase().contains(query));
+        }
+
+                if(c.getPreference().equalsIgnoreCase(preference) && stateValue && cityValue && localityValue && searchValue){
+                    filteredCom.add(c);
+                }
+        }
+
+        List<ResidentialPropertyResponse> filteredResidentialDtos = ResidentialPropertyMapper.toDtoList(filteredRes);
+        combined.addAll(
+                filteredResidentialDtos.stream()
+                .map(ResidentialPropertyMapper::toAllViewDto)
+                .toList());
+        List<CommercialPropertyResponse> filteredCommercialDtos = CommercialPropertyMapper.toDtoList(filteredCom);
+        combined.addAll(
+                filteredCommercialDtos.stream()
+                .map(CommercialPropertyMapper::toAllViewDto)
+                .toList()
+            );
+        
+        // 🔽 SORT 
+        if(sortBy==null || sortBy.isEmpty() || sortBy.equalsIgnoreCase(""))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+        else if(sortBy.equalsIgnoreCase("priceAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice));
+        else if(sortBy.equalsIgnoreCase("priceDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice).reversed());
+        else if(sortBy.equalsIgnoreCase("areaAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea));
+        else if(sortBy.equalsIgnoreCase("areaDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea).reversed());
+        else
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+
+        // 🔽 PAGINATION
+        int start = page * size;
+        int end = Math.min(start + size, combined.size());
+        List<AllPropertyViewResponse> pageContent =
+            start > combined.size() ? List.of() : combined.subList(start, end);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new PageImpl<>(
+            pageContent,
+            pageable,
+            combined.size() // ✅ totalElements
+        );
+    }
 
     public Map<String, List<?>> filterByPreferenceAndLocation(String preference, String state, String city, String locality) {
         List<ResidentialPropertyDetails> allResProp =  rRepo.findByAdminApprovedAndSoldAndExpired("Approved",false, false);
@@ -857,6 +1117,162 @@ public class UserService {
         res.put("commercial", filteredCommercialDtos);
         
         return res;
+    }
+
+    public Page<AllPropertyViewResponse> filterByPlotAndLocationPaged(String state, String city, String locality, String search, String sortBy, int page, int size) {
+
+        List<AllPropertyViewResponse> combined = new ArrayList<>();
+
+        List<ResidentialPropertyDetails> allResProp =  rRepo.findByAdminApprovedAndSoldAndExpired("Approved",false, false);
+           
+        List<CommercialPropertyDetails> allComProp =  cRepo.findByAdminApprovedAndSoldAndExpired("Approved",false, false);
+
+        List<ResidentialPropertyDetails> filteredRes =  new ArrayList<>();
+           
+        List<CommercialPropertyDetails> filteredCom =  new ArrayList<>();
+
+        System.out.println("filterByPlotAndLocation ::: state: "+state+", city: "+city+", locality: "+locality);
+
+        for(ResidentialPropertyDetails r : allResProp){
+            Boolean stateValue=false;
+            Boolean cityValue=false;
+            Boolean localityValue=false;
+            Boolean searchValue;
+
+            if(state==null || state.equalsIgnoreCase("")){
+                stateValue=true;
+            } else
+            if(r.getState().equalsIgnoreCase(state)){
+                stateValue= r.getState().equalsIgnoreCase(state);
+            }
+
+                if(city==null || city.equalsIgnoreCase("")){
+                    cityValue=true;
+                } else
+                if(r.getCity().equalsIgnoreCase(city)){
+                    cityValue= r.getCity().equalsIgnoreCase(city);
+                }
+
+            if(locality==null || locality.equalsIgnoreCase("")){
+                localityValue=true;
+            } else
+            if(r.getLocality().toLowerCase().contains(locality.toLowerCase())){
+                localityValue= r.getLocality().toLowerCase().contains(locality.toLowerCase());
+            }
+
+        if (search == null || search.trim().isEmpty()) {
+            searchValue = true;
+        } else {
+            String query = search.toLowerCase();
+            
+            searchValue = Stream.of(
+                r.getTitle(), 
+                r.getDescription(), 
+                r.getAddress(), 
+                r.getLocality(), 
+                r.getCity(), 
+                r.getState()
+            )
+            .filter(field -> field != null) // Ignore null fields
+            .anyMatch(field -> field.toLowerCase().contains(query));
+        }
+
+                if(r.getPropertyType().toLowerCase().contains("plot") && stateValue && cityValue && localityValue && searchValue){
+                    filteredRes.add(r);
+                }
+
+        }
+
+        for(CommercialPropertyDetails c: allComProp){
+
+            Boolean stateValue=false;
+            Boolean cityValue=false;
+            Boolean localityValue=false;
+            Boolean searchValue;
+
+            if(state==null || state.equalsIgnoreCase("")){
+                stateValue=true;
+            } else
+            if(c.getState().equalsIgnoreCase(state)){
+                stateValue= c.getState().equalsIgnoreCase(state);
+            }
+
+                if(city==null || city.equalsIgnoreCase("")){
+                    cityValue=true;
+                } else
+                if(c.getCity().equalsIgnoreCase(city)){
+                    cityValue= c.getCity().equalsIgnoreCase(city);
+                }
+
+            if(locality==null || locality.equalsIgnoreCase("")){
+                localityValue=true;
+            } else
+            if(c.getLocality().toLowerCase().contains(locality.toLowerCase())){
+                localityValue= c.getLocality().toLowerCase().contains(locality.toLowerCase());
+            }
+
+        if (search == null || search.trim().isEmpty()) {
+            searchValue = true;
+        } else {
+            String query = search.toLowerCase();
+            
+            searchValue = Stream.of(
+                c.getTitle(), 
+                c.getDescription(), 
+                c.getAddress(), 
+                c.getLocality(), 
+                c.getCity(), 
+                c.getState()
+            )
+            .filter(field -> field != null) // Ignore null fields
+            .anyMatch(field -> field.toLowerCase().contains(query));
+        }
+
+                if(c.getPropertyType().toLowerCase().contains("plot") && stateValue && cityValue && localityValue && searchValue){
+                    filteredCom.add(c);
+                }
+        }
+
+        List<ResidentialPropertyResponse> filteredResidentialDtos = ResidentialPropertyMapper.toDtoList(filteredRes);
+        combined.addAll(
+                filteredResidentialDtos.stream()
+                .map(ResidentialPropertyMapper::toAllViewDto)
+                .toList()
+            );
+        List<CommercialPropertyResponse> filteredCommercialDtos = CommercialPropertyMapper.toDtoList(filteredCom);
+        combined.addAll(
+                filteredCommercialDtos.stream()
+                .map(CommercialPropertyMapper::toAllViewDto)
+                .toList()
+            );
+        
+        // 🔽 SORT
+        if(sortBy==null || sortBy.isEmpty() || sortBy.equalsIgnoreCase(""))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+        else if(sortBy.equalsIgnoreCase("priceAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice));
+        else if(sortBy.equalsIgnoreCase("priceDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getPrice).reversed());
+        else if(sortBy.equalsIgnoreCase("areaAsc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea));
+        else if(sortBy.equalsIgnoreCase("areaDesc"))
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getArea).reversed());
+        else
+            combined.sort(Comparator.comparing(AllPropertyViewResponse::getApprovedAt).reversed());
+
+        // 🔽 PAGINATION
+        int start = page * size;
+        int end = Math.min(start + size, combined.size());
+        List<AllPropertyViewResponse> pageContent =
+            start > combined.size() ? List.of() : combined.subList(start, end);
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        return new PageImpl<>(
+            pageContent,
+            pageable,
+            combined.size() // ✅ totalElements
+        );
     }
 
     public Map<String, List<?>> filterByPlotAndLocation(String state, String city, String locality) {

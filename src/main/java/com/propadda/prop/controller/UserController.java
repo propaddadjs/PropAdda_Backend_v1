@@ -62,20 +62,37 @@ public class UserController {
 
     @PreAuthorize("permitAll()")
     @PostMapping("/getDetailedFilteredProperties")
-    public ResponseEntity<?> getDetailedFilteredProperties(@RequestBody DetailedFilterRequest filters) {
-        return ResponseEntity.ok(userService.getDetailedFilteredProperties(filters));
+    public ResponseEntity<?> getDetailedFilteredProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "newest") String sortBy,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getDetailedFilteredPropertiesPaged(filters, search, sortBy, page, size));
     }
 
     @PreAuthorize("permitAll()")
     @GetMapping("/filterByPreferenceAndLocation")
-    public ResponseEntity<?> filterByPreferenceAndLocation(@RequestParam String preference, @RequestParam String state, @RequestParam String city, @RequestParam String locality) {
-        return ResponseEntity.ok(userService.filterByPreferenceAndLocation(preference, state, city, locality));
+    public ResponseEntity<?> filterByPreferenceAndLocation(@RequestParam String preference, 
+        @RequestParam String state, 
+        @RequestParam String city, 
+        @RequestParam String locality, 
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "newest") String sortBy,
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.filterByPreferenceAndLocationPaged(preference, state, city, locality, search, sortBy, page, size));
     }
 
     @PreAuthorize("permitAll()")
     @GetMapping("/filterByPlotAndLocation")
-    public ResponseEntity<?> filterByPlotAndLocation(@RequestParam String state, @RequestParam String city, @RequestParam String locality) {
-        return ResponseEntity.ok(userService.filterByPlotAndLocation(state, city, locality));
+    public ResponseEntity<?> filterByPlotAndLocation(@RequestParam String state,
+        @RequestParam String city, 
+        @RequestParam String locality, 
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "newest") String sortBy,
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.filterByPlotAndLocationPaged(state, city, locality, search, sortBy, page, size));
     }
 
     @PreAuthorize("permitAll()")
