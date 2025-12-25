@@ -24,7 +24,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.propadda.prop.dto.AgentResponse;
 import com.propadda.prop.dto.DetailedFilterRequest;
-import com.propadda.prop.dto.FilterRequest;
 import com.propadda.prop.dto.PasswordUpdateRequest;
 import com.propadda.prop.dto.UserRequest;
 import com.propadda.prop.model.FeedbackDetails;
@@ -46,18 +45,6 @@ public class UserController {
     @GetMapping("/getPropertyDetails/{category}/{listingId}")  
     public ResponseEntity<?> getPropertyDetails(@PathVariable String category, @PathVariable Integer listingId) {
         return ResponseEntity.ok(userService.getPropertyDetails(category, listingId));
-    }
-
-    @PreAuthorize("permitAll()")
-    @GetMapping("/getAllProperties")
-    public ResponseEntity<?> getAllProperties() {
-        return ResponseEntity.ok(userService.getAllProperties());
-    }
-
-    @PreAuthorize("permitAll()")
-    @PostMapping("/getFilteredProperties")
-    public ResponseEntity<?> getFilteredProperties(@RequestBody FilterRequest filters) {
-        return ResponseEntity.ok(userService.getFilteredProperties(filters));
     }
 
     @PreAuthorize("permitAll()")
@@ -102,12 +89,6 @@ public class UserController {
     }
 
     @PreAuthorize("permitAll()")
-    @GetMapping("/filterByCity/{city}")
-    public ResponseEntity<?> filterByCity(@PathVariable String city) {
-        return ResponseEntity.ok(userService.filterByCity(city));
-    }
-
-    @PreAuthorize("permitAll()")
     @GetMapping("/getVipFilterByPropertyType/{propertyType}")
     public ResponseEntity<?> getVipFilterByPropertyType(@PathVariable String propertyType) {
         return ResponseEntity.ok(userService.getVipFilterByPropertyType(propertyType));
@@ -117,19 +98,6 @@ public class UserController {
     @GetMapping("/getVipFilterByPG")
     public ResponseEntity<?> getVipFilterByPG() {
         return ResponseEntity.ok(userService.getVipFilterByPG());
-    }
-
-    @PreAuthorize("permitAll()")
-    @GetMapping("/getNewlyLaunchedProperties")
-    public ResponseEntity<?> getNewlyLaunchedProperties() {
-        return ResponseEntity.ok(userService.getNewlyLaunchedProperties());
-    }
-
-    @PreAuthorize("isAuthenticated()")
-    @GetMapping("/getUserDashboardMetrics")
-    public ResponseEntity<?> getUserDashboardMetrics(@AuthenticationPrincipal CustomUserDetails cud) {
-        Integer userId = cud.getUser().getUserId();
-        return ResponseEntity.ok(userService.getUserDashboardMetrics(userId));
     }
 
     @PreAuthorize("isAuthenticated()")
@@ -206,6 +174,5 @@ public class UserController {
                 "status", "PENDING"
         ));
     }
-
 
 }

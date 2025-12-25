@@ -10,9 +10,9 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "v_all_properties")
+@Table(name = "v_all_properties_filter")
 @Immutable
-public class AllPropertyView {
+public class AllPropertyViewFilter {
 
     @Id
     @Column(name = "global_id")
@@ -20,6 +20,9 @@ public class AllPropertyView {
 
     @Column(name = "listing_id")
     private Integer listingId;
+
+    @Column(name = "category")
+    private String category;
 
     @Column(name = "preference")
     private String preference;
@@ -39,14 +42,12 @@ public class AllPropertyView {
     @Column(name = "area")
     private Double area;
 
-    // Residential
     @Column(name = "bedrooms")
     private Integer bedrooms;
 
     @Column(name = "bathrooms")
     private Integer bathrooms;
 
-    // Commercial
     @Column(name = "cabins")
     private Integer cabins;
 
@@ -55,6 +56,15 @@ public class AllPropertyView {
 
     @Column(name = "washroom")
     private Boolean washroom;
+
+    @Column(name = "furnishing")
+    private String furnishing;
+
+    @Column(name = "age")
+    private String age;
+
+    @Column(name = "availability")
+    private String availability;
 
     @Column(name = "state")
     private String state;
@@ -68,20 +78,20 @@ public class AllPropertyView {
     @Column(name = "address")
     private String address;
 
+    @Column(name = "nearby_place")
+    private String nearbyPlace;
+
     @Column(name = "admin_approved")
     private String adminApproved;
 
     @Column(name = "expired")
     private Boolean expired;
 
-    @Column(name = "vip")
-    private Boolean vip;
-
     @Column(name = "sold")
     private Boolean sold;
 
-    @Column(name = "category")
-    private String category;
+    @Column(name = "vip")
+    private Boolean vip;
 
     @Column(name = "rera_verified")
     private Boolean reraVerified;
@@ -100,7 +110,7 @@ public class AllPropertyView {
 
     @Column(name = "first_name")
     private String firstName;
-    
+
     @Column(name = "last_name")
     private String lastName;
 
@@ -116,12 +126,58 @@ public class AllPropertyView {
     @Column(name = "image_object_name")
     private String imageObjectName;
 
+    // ===== AMENITIES =====
+    @Column(name = "elevator")
+    private Boolean elevator;
+    @Column(name = "water24x7")
+    private Boolean water24x7;
+    @Column(name = "gas_pipeline")
+    private Boolean gasPipeline;
+    @Column(name = "pet_friendly")
+    private Boolean petFriendly;
+    @Column(name = "emergency_exit")
+    private Boolean emergencyExit;
+    @Column(name = "wheelchair_friendly")
+    private Boolean wheelchairFriendly;
+    @Column(name = "vastu_compliant")
+    private Boolean vastuCompliant;
+    @Column(name = "pooja_room")
+    private Boolean poojaRoom;
+    @Column(name = "study_room")
+    private Boolean studyRoom;
+    @Column(name = "servant_room")
+    private Boolean servantRoom;
+    @Column(name = "store_room")
+    private Boolean storeRoom;
+    @Column(name = "modular_kitchen")
+    private Boolean modularKitchen;
+    @Column(name = "high_ceiling_height")
+    private Boolean highCeilingHeight;
+    @Column(name = "park")
+    private Boolean park;
+    @Column(name = "swimming_pool")
+    private Boolean swimmingPool;
+    @Column(name = "gym")
+    private Boolean gym;
+    @Column(name = "clubhouse_community_center")
+    private Boolean clubhouseCommunityCenter;
+    @Column(name = "municipal_corporation")
+    private Boolean municipalCorporation;
+    @Column(name = "in_gated_society")
+    private Boolean inGatedSociety;
+    @Column(name = "corner_property")
+    private Boolean cornerProperty;
+
     public String getGlobalId() {
         return globalId;
     }
 
     public Integer getListingId() {
         return listingId;
+    }
+
+    public String getCategory() {
+        return category;
     }
 
     public String getPreference() {
@@ -160,12 +216,16 @@ public class AllPropertyView {
         return cabins;
     }
 
-    public Boolean getMeetingRoom() {
-        return meetingRoom;
+    public String getFurnishing() {
+        return furnishing;
     }
 
-    public Boolean getWashroom() {
-        return washroom;
+    public String getAge() {
+        return age;
+    }
+
+    public String getAvailability() {
+        return availability;
     }
 
     public String getState() {
@@ -192,16 +252,12 @@ public class AllPropertyView {
         return expired;
     }
 
-    public Boolean getVip() {
-        return vip;
-    }
-
     public Boolean getSold() {
         return sold;
     }
 
-    public String getCategory() {
-        return category;
+    public Boolean getVip() {
+        return vip;
     }
 
     public Boolean getReraVerified() {
@@ -248,4 +304,97 @@ public class AllPropertyView {
         return imageObjectName;
     }
 
+    public Boolean getElevator() {
+        return elevator;
+    }
+
+    public Boolean getWater24x7() {
+        return water24x7;
+    }
+
+    public Boolean getGasPipeline() {
+        return gasPipeline;
+    }
+
+    public Boolean getPetFriendly() {
+        return petFriendly;
+    }
+
+    public Boolean getEmergencyExit() {
+        return emergencyExit;
+    }
+
+    public Boolean getWheelchairFriendly() {
+        return wheelchairFriendly;
+    }
+
+    public Boolean getVastuCompliant() {
+        return vastuCompliant;
+    }
+
+    public Boolean getPoojaRoom() {
+        return poojaRoom;
+    }
+
+    public Boolean getStudyRoom() {
+        return studyRoom;
+    }
+
+    public Boolean getServantRoom() {
+        return servantRoom;
+    }
+
+    public Boolean getStoreRoom() {
+        return storeRoom;
+    }
+
+    public Boolean getModularKitchen() {
+        return modularKitchen;
+    }
+
+    public Boolean getHighCeilingHeight() {
+        return highCeilingHeight;
+    }
+
+    public Boolean getPark() {
+        return park;
+    }
+
+    public Boolean getSwimmingPool() {
+        return swimmingPool;
+    }
+
+    public Boolean getGym() {
+        return gym;
+    }
+
+    public Boolean getClubhouseCommunityCenter() {
+        return clubhouseCommunityCenter;
+    }
+
+    public Boolean getMunicipalCorporation() {
+        return municipalCorporation;
+    }
+
+    public Boolean getInGatedSociety() {
+        return inGatedSociety;
+    }
+
+    public Boolean getCornerProperty() {
+        return cornerProperty;
+    }
+
+    public Boolean getMeetingRoom() {
+        return meetingRoom;
+    }
+
+    public Boolean getWashroom() {
+        return washroom;
+    }
+
+    public String getNearbyPlace() {
+        return nearbyPlace;
+    }
+
 }
+
