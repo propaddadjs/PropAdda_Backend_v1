@@ -38,6 +38,7 @@ public class ResidentialPropertyMapper {
         dto.setFloor(entity.getFloor());
         dto.setAge(entity.getAge());
         dto.setAvailability(entity.getAvailability());
+        dto.setPossessionBy(entity.getPossessionBy());
         dto.setReraNumber(entity.getReraNumber());
         dto.setReraVerified(entity.getReraVerified());
         dto.setState(entity.getState());
@@ -182,6 +183,7 @@ public class ResidentialPropertyMapper {
         model.setFloor(request.getFloor());
         model.setAge(request.getAge());
         model.setAvailability(request.getAvailability());
+        model.setPossessionBy(request.getPossessionBy());
         model.setReraNumber(request.getReraNumber());
         model.setReraVerified(request.getReraVerified());
         model.setState(request.getState());

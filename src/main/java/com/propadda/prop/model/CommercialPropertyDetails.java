@@ -82,6 +82,9 @@ public class CommercialPropertyDetails {
     @Column(name="availability")
     private String availability;
 
+    @Column(name="possession_by")
+    private String possessionBy;
+
     @Column(name="securityDeposit")
     private Integer securityDeposit;
 
@@ -145,12 +148,13 @@ public class CommercialPropertyDetails {
     public CommercialPropertyDetails() {
     }
 
-    public CommercialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer cabins, String city, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, String locality, Integer lockIn, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Long price, String propertyType, Boolean receptionArea, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
+    public CommercialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, String possessionBy, Integer cabins, String city, Boolean conferenceRoom, String description, Boolean expired, Integer floor, Boolean lift, String locality, Integer lockIn, Boolean meetingRoom, String nearbyPlace, Boolean parking, Integer pincode, String preference, Long price, String propertyType, Boolean receptionArea, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip, Boolean washroom, Integer yearlyIncrease) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
         this.area = area;
         this.availability = availability;
+        this.possessionBy = possessionBy;
         this.cabins = cabins;
         this.city = city;
         this.conferenceRoom = conferenceRoom;
@@ -381,6 +385,14 @@ public class CommercialPropertyDetails {
 
     public void setApprovedAt(OffsetDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
 

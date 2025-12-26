@@ -21,6 +21,7 @@ public class CommercialPropertyRequest {
     private Boolean parking;
     private String age;
     private String availability;
+    private String possessionBy;
     private Integer securityDeposit;
     private Integer lockIn;
     private Integer yearlyIncrease;
@@ -295,6 +296,14 @@ public class CommercialPropertyRequest {
 
     public Integer getListingId() {
         return listingId;
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
 

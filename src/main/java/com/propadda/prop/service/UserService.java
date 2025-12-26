@@ -45,14 +45,14 @@ import com.propadda.prop.mappers.AllPropertyViewMapper;
 import com.propadda.prop.mappers.CommercialPropertyMapper;
 import com.propadda.prop.mappers.ResidentialPropertyMapper;
 import com.propadda.prop.mappers.UserMapper;
+import com.propadda.prop.model.AllPropertyView;
 import com.propadda.prop.model.AllPropertyViewFilter;
-import com.propadda.prop.model.CommercialPropertyDetails;
 import com.propadda.prop.model.FeedbackDetails;
 import com.propadda.prop.model.HelpDetails;
 import com.propadda.prop.model.NotificationDetails;
-import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
 import com.propadda.prop.repo.AllPropertyViewFilterRepository;
+import com.propadda.prop.repo.AllPropertyViewRepository;
 import com.propadda.prop.repo.CommercialPropertyDetailsRepo;
 import com.propadda.prop.repo.FeedbackDetailsRepo;
 import com.propadda.prop.repo.HelpDetailsRepo;
@@ -92,6 +92,9 @@ public class UserService {
     
     @Autowired
     NotificationDetailsRepository notificationRepo;
+
+    @Autowired
+    private AllPropertyViewRepository allPropertyViewRepo;
 
     @Autowired
     private AllPropertyViewFilterRepository allPropertyViewFilterRepo;
@@ -573,41 +576,212 @@ public class UserService {
         return res;
     }
 
-    public Map<String, List<?>> getVipFilterByPropertyType(String propertyType) {
-        List<ResidentialPropertyDetails> allResProp = new ArrayList<>();
-        List<CommercialPropertyDetails> allComProp = new ArrayList<>();
-        if(propertyType.equalsIgnoreCase("plot")){
-            propertyType="plot/land";
-        }
-        System.out.println("getVipFilterByPropertyType::: propertyType: "+propertyType);
-        if(propertyType.equalsIgnoreCase("flat")){
-            allResProp.addAll(rRepo.getVipFilterByPropertyType("apartment"));
-            allResProp.addAll(rRepo.getVipFilterByPropertyType("flat"));
-            allComProp.addAll(cRepo.getVipFilterByPropertyType("apartment"));
-            allComProp.addAll(cRepo.getVipFilterByPropertyType("flat"));
-        }else{
-            allResProp.addAll(rRepo.getVipFilterByPropertyType(propertyType));
-           allComProp.addAll(cRepo.getVipFilterByPropertyType(propertyType));
-        }
-        Map<String, List<?>> res = new HashMap<>();
-        
-        res.put("residential", ResidentialPropertyMapper.toDtoList(allResProp));
-        res.put("commercial", CommercialPropertyMapper.toDtoList(allComProp));
-        
-        return res;
+    public List<AllPropertyViewResponse> getVipFilterByPropertyType(
+        String propertyType
+    ) {
+
+        Pageable pageable =
+            PageRequest.of(
+                0,
+                10,
+                Sort.by("approvedAt").descending()
+            );
+
+        List<AllPropertyView> result =
+            allPropertyViewRepo
+                .findAll(
+                    this.vipByPropertyType(propertyType, null),
+                    pageable
+                )
+                .getContent();
+
+        return result.stream()
+                    .map(allPropertyViewMapper::toDto)
+                    .toList();
     }
 
-    public Map<String, List<?>> getVipFilterByPG() {
-        List<ResidentialPropertyDetails> allResProp =  rRepo.getVipFilterByPG();
-           
-        List<CommercialPropertyDetails> allComProp =  cRepo.getVipFilterByPG();
-        
-        Map<String, List<?>> res = new HashMap<>();
-        
-        res.put("residential", ResidentialPropertyMapper.toDtoList(allResProp));
-        res.put("commercial", CommercialPropertyMapper.toDtoList(allComProp));
-        
-        return res;
+    public List<AllPropertyViewResponse> getVipFilterByPG() {
+
+        Pageable pageable =
+            PageRequest.of(
+                0,
+                10,
+                Sort.by("approvedAt").descending()
+            );
+
+        List<AllPropertyView> result =
+            allPropertyViewRepo
+                .findAll(
+                    this.vipPG(null),
+                    pageable
+                )
+                .getContent();
+
+        return result.stream()
+                    .map(allPropertyViewMapper::toDto)
+                    .toList();
+    }
+
+    public Page<AllPropertyViewResponse> getVipFilterByPropertyTypePaged(
+        String propertyType,
+        String search,
+        String sortBy,
+        int page,
+        int size
+    ) {
+
+        Sort sort = Sort.by("approvedAt").descending();
+
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "priceAsc" -> sort = Sort.by("price").ascending();
+                case "priceDesc" -> sort = Sort.by("price").descending();
+                case "areaAsc" -> sort = Sort.by("area").ascending();
+                case "areaDesc" -> sort = Sort.by("area").descending();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<AllPropertyView> result =
+            allPropertyViewRepo.findAll(
+                this.vipByPropertyType(propertyType, search),
+                pageable
+            );
+
+        return result.map(allPropertyViewMapper::toDto);
+    }
+
+    public Page<AllPropertyViewResponse> getVipFilterByPGPaged(
+        String search,
+        String sortBy,
+        int page,
+        int size
+    ) {
+
+        Sort sort = Sort.by("approvedAt").descending();
+
+        if (sortBy != null) {
+            switch (sortBy) {
+                case "priceAsc" -> sort = Sort.by("price").ascending();
+                case "priceDesc" -> sort = Sort.by("price").descending();
+                case "areaAsc" -> sort = Sort.by("area").ascending();
+                case "areaDesc" -> sort = Sort.by("area").descending();
+            }
+        }
+
+        Pageable pageable = PageRequest.of(page, size, sort);
+
+        Page<AllPropertyView> result =
+            allPropertyViewRepo.findAll(
+                this.vipPG(search),
+                pageable
+            );
+
+        return result.map(allPropertyViewMapper::toDto);
+    }
+
+    public Specification<AllPropertyView> vipByPropertyType(
+            String propertyType,
+            String search
+    ) {
+        return (root, query, cb) -> {
+
+            List<Predicate> p = new ArrayList<>();
+
+            // base filters
+            p.add(cb.equal(root.get("adminApproved"), "Approved"));
+            p.add(cb.isFalse(root.get("expired")));
+            p.add(cb.isFalse(root.get("sold")));
+            p.add(cb.isTrue(root.get("vip")));
+
+            // property type logic
+            if (hasValue(propertyType)) {
+
+                String pt = propertyType.toLowerCase();
+
+                switch (pt) {
+
+                    case "plot" ->
+                        // plot / land
+                        p.add(
+                            cb.or(
+                                cb.like(cb.lower(root.get("propertyType")), "%plot%"),
+                                cb.like(cb.lower(root.get("propertyType")), "%land%")
+                            )
+                        );
+
+                    case "flat" ->
+                        // flat / apartment
+                        p.add(
+                            cb.or(
+                                cb.like(cb.lower(root.get("propertyType")), "%flat%"),
+                                cb.like(cb.lower(root.get("propertyType")), "%apartment%")
+                            )
+                        );
+
+                    default ->
+                        p.add(
+                            cb.like(
+                                cb.lower(root.get("propertyType")),
+                                "%" + pt + "%"
+                            )
+                        );
+                }
+            }
+
+            // optional search
+            if (search != null && !search.isBlank()) {
+                String like = "%" + search.toLowerCase() + "%";
+
+                p.add(
+                    cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("description")), like),
+                        cb.like(cb.lower(root.get("locality")), like),
+                        cb.like(cb.lower(root.get("city")), like),
+                        cb.like(cb.lower(root.get("state")), like)
+                    )
+                );
+            }
+
+            return cb.and(p.toArray(Predicate[]::new));
+        };
+    }
+
+    public Specification<AllPropertyView> vipPG(
+        String search
+    ) {
+        return (root, query, cb) -> {
+
+            List<Predicate> p = new ArrayList<>();
+
+            // base filters
+            p.add(cb.equal(root.get("adminApproved"), "Approved"));
+            p.add(cb.isFalse(root.get("expired")));
+            p.add(cb.isFalse(root.get("sold")));
+            p.add(cb.isTrue(root.get("vip")));
+
+            // PG preference
+            p.add(eqIgnoreCase(cb, root.get("preference"), "pg"));
+
+            // optional search
+            if (search != null && !search.isBlank()) {
+                String like = "%" + search.toLowerCase() + "%";
+
+                p.add(
+                    cb.or(
+                        cb.like(cb.lower(root.get("title")), like),
+                        cb.like(cb.lower(root.get("description")), like),
+                        cb.like(cb.lower(root.get("locality")), like),
+                        cb.like(cb.lower(root.get("city")), like),
+                        cb.like(cb.lower(root.get("state")), like)
+                    )
+                );
+            }
+
+            return cb.and(p.toArray(Predicate[]::new));
+        };
     }
 
     public UserResponse getUserDetails(Integer userId) {

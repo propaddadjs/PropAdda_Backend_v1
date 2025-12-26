@@ -95,9 +95,29 @@ public class UserController {
     }
 
     @PreAuthorize("permitAll()")
+    @GetMapping("/getVipFilterByPropertyTypePaged")
+    public ResponseEntity<?> getVipFilterByPropertyTypePaged(@RequestParam String propertyType,
+        @RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "newest") String sortBy,
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "10") int size
+    ) {
+        return ResponseEntity.ok(userService.getVipFilterByPropertyTypePaged(propertyType, search, sortBy, page, size));
+    }
+
+    @PreAuthorize("permitAll()")
     @GetMapping("/getVipFilterByPG")
     public ResponseEntity<?> getVipFilterByPG() {
         return ResponseEntity.ok(userService.getVipFilterByPG());
+    }
+
+    @PreAuthorize("permitAll()")
+    @GetMapping("/getVipFilterByPGPaged")
+    public ResponseEntity<?> getVipFilterByPGPaged(@RequestParam(defaultValue = "") String search,
+        @RequestParam(defaultValue = "newest") String sortBy,
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(userService.getVipFilterByPGPaged(search, sortBy, page, size));
     }
 
     @PreAuthorize("isAuthenticated()")

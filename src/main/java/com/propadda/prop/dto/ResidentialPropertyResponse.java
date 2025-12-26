@@ -22,6 +22,7 @@ public class ResidentialPropertyResponse {
     private Integer floor;
     private String age;
     private String availability;
+    private String possessionBy;
     private String reraNumber;
     private Boolean reraVerified;
     private String state;
@@ -1175,6 +1176,14 @@ public class ResidentialPropertyResponse {
 
     public void setApprovedAt(OffsetDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
     

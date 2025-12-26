@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import com.propadda.prop.model.AllPropertyViewFilter;
 
 public interface AllPropertyViewFilterRepository
-        extends JpaRepository<AllPropertyViewFilter, Integer>,
+        extends JpaRepository<AllPropertyViewFilter, String>,
                 JpaSpecificationExecutor<AllPropertyViewFilter> {
 }

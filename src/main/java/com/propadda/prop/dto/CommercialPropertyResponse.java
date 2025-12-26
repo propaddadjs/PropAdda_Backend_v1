@@ -25,6 +25,7 @@ public class CommercialPropertyResponse {
     private Boolean parking;
     private String age;
     private String availability;
+    private String possessionBy;
     private Integer securityDeposit;
     private Integer lockIn;
     private Integer yearlyIncrease;
@@ -405,6 +406,14 @@ public class CommercialPropertyResponse {
 
     public void setApprovedAt(OffsetDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
 

@@ -44,6 +44,7 @@ public class CommercialPropertyMapper {
         // Rental Terms & Structure
         dto.setAge(entity.getAge());
         dto.setAvailability(entity.getAvailability());
+        dto.setPossessionBy(entity.getPossessionBy());
         dto.setSecurityDeposit(entity.getSecurityDeposit());
         dto.setLockIn(entity.getLockIn());
         dto.setYearlyIncrease(entity.getYearlyIncrease());
@@ -111,6 +112,7 @@ public class CommercialPropertyMapper {
         // Rental Terms & Structure
         model.setAge(request.getAge());
         model.setAvailability(request.getAvailability());
+        model.setPossessionBy(request.getPossessionBy());
         model.setSecurityDeposit(request.getSecurityDeposit());
         model.setLockIn(request.getLockIn());
         model.setYearlyIncrease(request.getYearlyIncrease());

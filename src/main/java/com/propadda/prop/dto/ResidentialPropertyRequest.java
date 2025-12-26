@@ -32,6 +32,8 @@ public class ResidentialPropertyRequest {
 
     private String availability;
 
+    private String possessionBy;
+
     private String reraNumber;
 
     private Boolean reraVerified;
@@ -1004,6 +1006,14 @@ public class ResidentialPropertyRequest {
         sb.append(", closeToHighway=").append(closeToHighway);
         sb.append('}');
         return sb.toString();
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
 

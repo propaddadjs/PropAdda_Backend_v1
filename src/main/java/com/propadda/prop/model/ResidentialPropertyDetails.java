@@ -74,6 +74,9 @@ public class ResidentialPropertyDetails {
     @Column(name="availability")
     private String availability;
 
+    @Column(name="possession_by")
+    private String possessionBy;
+
     @Column(name = "rera_number")
     private String reraNumber;
 
@@ -181,12 +184,13 @@ public class ResidentialPropertyDetails {
     public ResidentialPropertyDetails() {
     }
 
-    public ResidentialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, Boolean expired, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Long price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip) {
+    public ResidentialPropertyDetails(String address, String age, String adminApproved, Double area, String availability, String possessionBy, Integer balconies, Integer bathrooms, Integer bedrooms, String city, Integer coveredParking, String description, Boolean expired, String facing, Integer floor, String furnishing, String locality, Integer maintenance, String nearbyPlace, Integer openParking, Integer pincode, String powerBackup, String preference, Long price, String propertyType, String reraNumber, Boolean reraVerified, Integer securityDeposit, String state, String title, Integer totalFloors, Boolean vip) {
         this.address = address;
         this.age = age;
         this.adminApproved = adminApproved;
         this.area = area;
         this.availability = availability;
+        this.possessionBy = possessionBy;
         this.balconies = balconies;
         this.bathrooms = bathrooms;
         this.bedrooms = bedrooms;
@@ -542,6 +546,14 @@ public class ResidentialPropertyDetails {
 
     public void setApprovedAt(OffsetDateTime approvedAt) {
         this.approvedAt = approvedAt;
+    }
+
+    public String getPossessionBy() {
+        return possessionBy;
+    }
+
+    public void setPossessionBy(String possessionBy) {
+        this.possessionBy = possessionBy;
     }
 
     
