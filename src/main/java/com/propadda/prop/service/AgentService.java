@@ -103,11 +103,11 @@ public class AgentService {
         List<CommercialPropertyResponse> cres = new ArrayList<>();
         List<ResidentialPropertyResponse> rres = new ArrayList<>();
         if(owner!=null){
-            List<CommercialPropertyDetails> clist = cRepo.findByCommercialOwnerAndAdminApproved(owner,"Pending");
+            List<CommercialPropertyDetails> clist = cRepo.findByCommercialOwnerAndAdminApprovedAndExpired(owner,"Pending",false);
             if(!clist.isEmpty()){
                 cres = CommercialPropertyMapper.toDtoList(clist);
             }
-            List<ResidentialPropertyDetails> rlist = rRepo.findByResidentialOwnerAndAdminApproved(owner,"Pending");
+            List<ResidentialPropertyDetails> rlist = rRepo.findByResidentialOwnerAndAdminApprovedAndExpired(owner,"Pending",false);
             if(!rlist.isEmpty()){
                 rres = ResidentialPropertyMapper.toDtoList(rlist);
             }

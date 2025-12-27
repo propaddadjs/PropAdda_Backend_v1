@@ -122,8 +122,8 @@ public class AdminService {
     }
 
     public Map<String,List<?>> getExpiredProperties(){
-        List<ResidentialPropertyDetails> rpd = rpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,true);
-        List<CommercialPropertyDetails> cpd = cpdRepo.findByAdminApprovedAndSoldAndExpired("Approved",false,true);
+        List<ResidentialPropertyDetails> rpd = rpdRepo.findByAdminApprovedAndSoldAndExpired("Pending",false,true);
+        List<CommercialPropertyDetails> cpd = cpdRepo.findByAdminApprovedAndSoldAndExpired("Pending",false,true);
 
         Map<String, List<?>> prop = new HashMap<>();
         prop.put("commercial",ResidentialPropertyMapper.toDtoList(rpd));

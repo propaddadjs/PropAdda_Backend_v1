@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.propadda.prop.dto.ExpiredPropertyView;
 import com.propadda.prop.model.ResidentialPropertyDetails;
 import com.propadda.prop.model.Users;
 
@@ -21,7 +22,7 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
 
     List<ResidentialPropertyDetails> findByResidentialOwner(Users owner);
 
-    List<ResidentialPropertyDetails> findByResidentialOwnerAndAdminApproved(Users owner, String adminApproved);
+    List<ResidentialPropertyDetails> findByResidentialOwnerAndAdminApprovedAndExpired(Users owner, String adminApproved, Boolean expired);
 
     List<ResidentialPropertyDetails> findByResidentialOwnerAndExpired(Users owner, Boolean expired);
 
@@ -97,5 +98,53 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
 
     @Query("SELECT r FROM ResidentialPropertyDetails r WHERE LOWER(r.preference) = 'pg' AND r.vip= true AND r.adminApproved = 'Approved' AND r.expired = false AND r.sold = false")
     List<ResidentialPropertyDetails> getVipFilterByPG();
+
+    @Query(value = """
+        SELECT *
+        FROM residential_property_details r
+        WHERE r.expired = false
+        AND r.sold = false
+        AND r.admin_approved = 'Approved'
+        AND r.approved_at IS NOT NULL
+        AND (CURRENT_DATE - r.approved_at::date) IN (76, 83, 87, 89)
+        AND NOT EXISTS (
+            SELECT 1
+            FROM property_expiry_email_log l
+            WHERE l.category = 'Residential'
+                AND l.listing_id = r.listing_id
+                AND l.approved_at::date = r.approved_at::date
+                AND l.reminder_day = (CURRENT_DATE - r.approved_at::date)
+        )
+        """, nativeQuery = true)
+    List<ResidentialPropertyDetails> findForExpiryReminders();
+
+    // @Modifying
+    // @Query(value = """
+    //     UPDATE residential_property_details
+    //     SET expired = true,
+    //         approved_at = NULL,
+    //         admin_approved = 'Pending'
+    //     WHERE approved_at IS NOT NULL
+    //     AND approved_at::date <= CURRENT_DATE - 90
+    //     AND expired = false
+    //     AND sold = false
+    //     AND admin_approved = 'Approved'
+    //     """, nativeQuery = true)
+    // int expireOldApprovedProperties();
+    @Query(value = """
+        UPDATE commercial_property_details
+        SET expired = true,
+            approved_at = NULL,
+            admin_approved = 'Pending'
+        WHERE approved_at IS NOT NULL
+          AND approved_at::date <= CURRENT_DATE - 90
+          AND expired = false
+          AND sold = false
+          AND admin_approved = 'Approved'
+        RETURNING listing_id AS listingId,
+                  title,
+                  user_id AS userId
+        """, nativeQuery = true)
+    List<ExpiredPropertyView> expireAndFetchExpired();
 
 }
