@@ -4,6 +4,8 @@ package com.propadda.prop.repo;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -15,10 +17,10 @@ import com.propadda.prop.model.Users;
 public interface UsersRepo extends JpaRepository<Users, Integer> {
 
     @Query("SELECT u FROM Users u WHERE u.kycVerified = 'PENDING'")
-    List<Users> findUsersWithPendingKyc();
+    Page<Users> findUsersWithPendingKyc(Pageable pageable);
 
     @Query("SELECT u FROM Users u WHERE u.role = 'AGENT' AND u.kycVerified = 'APPROVED'")
-    List<Users> findSellers();
+    Page<Users> findSellers(Pageable pageable);
 
     List<Users> findByRole(Role role);
 

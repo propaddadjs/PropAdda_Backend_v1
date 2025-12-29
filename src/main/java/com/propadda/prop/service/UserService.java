@@ -278,7 +278,7 @@ public class UserService {
         return result.map(allPropertyViewMapper::toDtoFiltered);
     }
 
-        private static boolean hasValue(String s) {
+    private static boolean hasValue(String s) {
         return s != null && !s.isBlank()
             && !"All".equalsIgnoreCase(s)
             && !"Any".equalsIgnoreCase(s);

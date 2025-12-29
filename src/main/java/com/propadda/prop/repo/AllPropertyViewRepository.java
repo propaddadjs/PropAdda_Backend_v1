@@ -17,4 +17,12 @@ public interface AllPropertyViewRepository
         Boolean sold,
         Pageable pageable
     );
+
+    Page<AllPropertyView> findByAdminApprovedAndExpiredAndSoldAndVip(
+        String adminApproved,
+        Boolean expired,
+        Boolean sold,
+        Boolean vip,
+        Pageable pageable
+    );
 }

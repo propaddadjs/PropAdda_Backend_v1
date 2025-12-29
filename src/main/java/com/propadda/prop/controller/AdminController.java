@@ -1,8 +1,6 @@
 // Author-Hemant Arora
 package com.propadda.prop.controller;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.propadda.prop.dto.CommercialPropertyResponse;
-import com.propadda.prop.dto.ResidentialPropertyResponse;
+import com.propadda.prop.dto.DetailedFilterRequest;
 import com.propadda.prop.model.NotificationDetails;
 import com.propadda.prop.service.AdminService;
 
@@ -37,71 +34,188 @@ public class AdminController {
         return ResponseEntity.ok(adminService.getAllProperties(page,size));
     }
 
+    // @GetMapping("/pendingProperties")
+    // public ResponseEntity<?> getPendingProperties() {
+    //     return ResponseEntity.ok(adminService.getPendingProperties());
+    // }
+
     @GetMapping("/pendingProperties")
-    public ResponseEntity<?> getPendingProperties() {
-        return ResponseEntity.ok(adminService.getPendingProperties());
+    public ResponseEntity<?> getPendingProperties(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getPendingProperties(page,size));
     }
 
+    // @GetMapping("/expiredProperties")
+    // public ResponseEntity<?> getExpiredProperties() {
+    //     return ResponseEntity.ok(adminService.getExpiredProperties());
+    // }
     @GetMapping("/expiredProperties")
-    public ResponseEntity<?> getExpiredProperties() {
-        return ResponseEntity.ok(adminService.getExpiredProperties());
+    public ResponseEntity<?> getExpiredProperties(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getExpiredProperties(page,size));
     }
 
+    // @GetMapping("/vipProperties")
+    // public ResponseEntity<?> getVipProperties() {
+    //     return ResponseEntity.ok(adminService.getVipProperties());
+    // }
     @GetMapping("/vipProperties")
-    public ResponseEntity<?> getVipProperties() {
-        return ResponseEntity.ok(adminService.getVipProperties());
+    public ResponseEntity<?> getVipProperties(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getVipProperties(page,size));
     }
 
+    // @GetMapping("/soldProperties")
+    // public ResponseEntity<?> getSoldProperties() {
+    //     return ResponseEntity.ok(adminService.getSoldProperties());
+    // }
     @GetMapping("/soldProperties")
-    public ResponseEntity<?> getSoldProperties() {
-        return ResponseEntity.ok(adminService.getSoldProperties());
+    public ResponseEntity<?> getSoldProperties(@RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.getSoldProperties(page,size));
     }
 
-    @GetMapping("/filterAllProperties")
-    public ResponseEntity<?> filterAllProperties(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String propertyTypes,
-            @RequestParam(required = false) String preference,
-            @RequestParam(required = false) Long priceMin,
-            @RequestParam(required = false) Long priceMax,
-            @RequestParam(required = false) String furnishing,
-            @RequestParam(required = false) String state,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String amenities,
-            @RequestParam(required = false) String availability,
-            @RequestParam(required = false) Integer areaMin,
-            @RequestParam(required = false) Integer areaMax,
-            @RequestParam(required = false) String ageRanges,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        System.out.println("category: "+category);
-        System.out.println("propertyTypes: "+propertyTypes);
-        System.out.println("preference: "+preference);
-        System.out.println("priceMin: "+priceMin);
-        System.out.println("priceMax: "+priceMax);
-        System.out.println("furnishing: "+furnishing);
-        System.out.println("state: "+state);
-        System.out.println("city: "+city);
-        System.out.println("amenities: "+amenities);
-        System.out.println("availability: "+availability);
-        System.out.println("areaMin: "+areaMin);
-        System.out.println("areaMax: "+areaMax);
-        System.out.println("ageRanges: "+ageRanges);
+    // @GetMapping("/filterAllProperties")
+    // public ResponseEntity<?> filterAllProperties(
+    //         @RequestParam(required = false) String category,
+    //         @RequestParam(required = false) String propertyTypes,
+    //         @RequestParam(required = false) String preference,
+    //         @RequestParam(required = false) Long priceMin,
+    //         @RequestParam(required = false) Long priceMax,
+    //         @RequestParam(required = false) String furnishing,
+    //         @RequestParam(required = false) String state,
+    //         @RequestParam(required = false) String city,
+    //         @RequestParam(required = false) String amenities,
+    //         @RequestParam(required = false) String availability,
+    //         @RequestParam(required = false) Integer areaMin,
+    //         @RequestParam(required = false) Integer areaMax,
+    //         @RequestParam(required = false) String ageRanges,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size
+    // ) {
+    //     System.out.println("category: "+category);
+    //     System.out.println("propertyTypes: "+propertyTypes);
+    //     System.out.println("preference: "+preference);
+    //     System.out.println("priceMin: "+priceMin);
+    //     System.out.println("priceMax: "+priceMax);
+    //     System.out.println("furnishing: "+furnishing);
+    //     System.out.println("state: "+state);
+    //     System.out.println("city: "+city);
+    //     System.out.println("amenities: "+amenities);
+    //     System.out.println("availability: "+availability);
+    //     System.out.println("areaMin: "+areaMin);
+    //     System.out.println("areaMax: "+areaMax);
+    //     System.out.println("ageRanges: "+ageRanges);
+
+    // //     Map<String, List<?>> response = new HashMap<>();
+    // //     if(category==null){
+    // //         response = adminService.combinedFilteredAllPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    // //         System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    // //     } else
+    // //     if(category.equalsIgnoreCase("Residential")){
+    // //         List<ResidentialPropertyResponse> resProp = adminService.filterAllResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    // //         response.put("residential",resProp);
+    // //         response.put("commercial",null);
+    // //         System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    // //     }else
+    // //     if(category.equalsIgnoreCase("Commercial")){
+    // //         List<CommercialPropertyResponse> comProp = adminService.filterAllComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    // //         response.put("residential",null);
+    // //         response.put("commercial",comProp);
+    // //         System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    // //     }else{
+    // //         System.out.println("Response set as null");
+    // //         response = null;
+    // //     }
+
+    // // return ResponseEntity.ok(response);
+    // return ResponseEntity.ok(
+    //     adminService.filterAllPropertiesPaged(
+    //         category, propertyTypes, preference,
+    //         priceMin, priceMax, furnishing,
+    //         state, city, amenities, availability,
+    //         areaMin, areaMax, ageRanges,
+    //         page, size
+    //     )
+    // );
+    // }
+
+    @PostMapping("/filterAllProperties")
+    public ResponseEntity<?> filterAllProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.allFilteredPropertiesPaged(filters, page, size));
+    }
+
+    @PostMapping("/filterPendingProperties")
+    public ResponseEntity<?> filterPendingProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.pendingFilteredPropertiesPaged(filters, page, size));
+    }
+
+    @PostMapping("/filterExpiredProperties")
+    public ResponseEntity<?> filterExpiredProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.expiredFilteredPropertiesPaged(filters, page, size));
+    }
+
+    @PostMapping("/filterVipProperties")
+    public ResponseEntity<?> filterVipProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.vipFilteredPropertiesPaged(filters, page, size));
+    }
+
+    @PostMapping("/filterSoldProperties")
+    public ResponseEntity<?> filterSoldProperties(@RequestBody DetailedFilterRequest filters,
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int size) {
+        return ResponseEntity.ok(adminService.soldFilteredPropertiesPaged(filters, page, size));
+    }
+
+    // @GetMapping("/filterPendingProperties")
+    // public ResponseEntity<?> filterPendingProperties(
+    //         @RequestParam(required = false) String category,
+    //         @RequestParam(required = false) String propertyTypes,
+    //         @RequestParam(required = false) String preference,
+    //         @RequestParam(required = false) Long priceMin,
+    //         @RequestParam(required = false) Long priceMax,
+    //         @RequestParam(required = false) String furnishing,
+    //         @RequestParam(required = false) String state,
+    //         @RequestParam(required = false) String city,
+    //         @RequestParam(required = false) String amenities,
+    //         @RequestParam(required = false) String availability,
+    //         @RequestParam(required = false) Integer areaMin,
+    //         @RequestParam(required = false) Integer areaMax,
+    //         @RequestParam(required = false) String ageRanges,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size
+    // ) {
+    //     System.out.println("category: "+category);
+    //     System.out.println("propertyTypes: "+propertyTypes);
+    //     System.out.println("preference: "+preference);
+    //     System.out.println("priceMin: "+priceMin);
+    //     System.out.println("priceMax: "+priceMax);
+    //     System.out.println("furnishing: "+furnishing);
+    //     System.out.println("state: "+state);
+    //     System.out.println("city: "+city);
+    //     System.out.println("amenities: "+amenities);
+    //     System.out.println("availability: "+availability);
+    //     System.out.println("areaMin: "+areaMin);
+    //     System.out.println("areaMax: "+areaMax);
+    //     System.out.println("ageRanges: "+ageRanges);
 
     //     Map<String, List<?>> response = new HashMap<>();
     //     if(category==null){
-    //         response = adminService.combinedFilteredAllPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response = adminService.combinedFilteredPendingPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
     //         System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
     //     } else
     //     if(category.equalsIgnoreCase("Residential")){
-    //         List<ResidentialPropertyResponse> resProp = adminService.filterAllResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         List<ResidentialPropertyResponse> resProp = adminService.filterPendingResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
     //         response.put("residential",resProp);
     //         response.put("commercial",null);
     //         System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
     //     }else
     //     if(category.equalsIgnoreCase("Commercial")){
-    //         List<CommercialPropertyResponse> comProp = adminService.filterAllComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         List<CommercialPropertyResponse> comProp = adminService.filterPendingComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
     //         response.put("residential",null);
     //         response.put("commercial",comProp);
     //         System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
@@ -111,184 +225,119 @@ public class AdminController {
     //     }
 
     // return ResponseEntity.ok(response);
-    return ResponseEntity.ok(
-        adminService.filterAllPropertiesPaged(
-            category, propertyTypes, preference,
-            priceMin, priceMax, furnishing,
-            state, city, amenities, availability,
-            areaMin, areaMax, ageRanges,
-            page, size
-        )
-    );
-    }
+    // }
 
-    @GetMapping("/filterPendingProperties")
-    public ResponseEntity<?> filterPendingProperties(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String propertyTypes,
-            @RequestParam(required = false) String preference,
-            @RequestParam(required = false) Long priceMin,
-            @RequestParam(required = false) Long priceMax,
-            @RequestParam(required = false) String furnishing,
-            @RequestParam(required = false) String state,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String amenities,
-            @RequestParam(required = false) String availability,
-            @RequestParam(required = false) Integer areaMin,
-            @RequestParam(required = false) Integer areaMax,
-            @RequestParam(required = false) String ageRanges,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        System.out.println("category: "+category);
-        System.out.println("propertyTypes: "+propertyTypes);
-        System.out.println("preference: "+preference);
-        System.out.println("priceMin: "+priceMin);
-        System.out.println("priceMax: "+priceMax);
-        System.out.println("furnishing: "+furnishing);
-        System.out.println("state: "+state);
-        System.out.println("city: "+city);
-        System.out.println("amenities: "+amenities);
-        System.out.println("availability: "+availability);
-        System.out.println("areaMin: "+areaMin);
-        System.out.println("areaMax: "+areaMax);
-        System.out.println("ageRanges: "+ageRanges);
+    // @GetMapping("/filterExpiredProperties")
+    // public ResponseEntity<?> filterExpiredProperties(
+    //         @RequestParam(required = false) String category,
+    //         @RequestParam(required = false) String propertyTypes,
+    //         @RequestParam(required = false) String preference,
+    //         @RequestParam(required = false) Long priceMin,
+    //         @RequestParam(required = false) Long priceMax,
+    //         @RequestParam(required = false) String furnishing,
+    //         @RequestParam(required = false) String state,
+    //         @RequestParam(required = false) String city,
+    //         @RequestParam(required = false) String amenities,
+    //         @RequestParam(required = false) String availability,
+    //         @RequestParam(required = false) Integer areaMin,
+    //         @RequestParam(required = false) Integer areaMax,
+    //         @RequestParam(required = false) String ageRanges,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size
+    // ) {
+    //     System.out.println("category: "+category);
+    //     System.out.println("propertyTypes: "+propertyTypes);
+    //     System.out.println("preference: "+preference);
+    //     System.out.println("priceMin: "+priceMin);
+    //     System.out.println("priceMax: "+priceMax);
+    //     System.out.println("furnishing: "+furnishing);
+    //     System.out.println("state: "+state);
+    //     System.out.println("city: "+city);
+    //     System.out.println("amenities: "+amenities);
+    //     System.out.println("availability: "+availability);
+    //     System.out.println("areaMin: "+areaMin);
+    //     System.out.println("areaMax: "+areaMax);
+    //     System.out.println("ageRanges: "+ageRanges);
 
-        Map<String, List<?>> response = new HashMap<>();
-        if(category==null){
-            response = adminService.combinedFilteredPendingPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        } else
-        if(category.equalsIgnoreCase("Residential")){
-            List<ResidentialPropertyResponse> resProp = adminService.filterPendingResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",resProp);
-            response.put("commercial",null);
-            System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else
-        if(category.equalsIgnoreCase("Commercial")){
-            List<CommercialPropertyResponse> comProp = adminService.filterPendingComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",null);
-            response.put("commercial",comProp);
-            System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else{
-            System.out.println("Response set as null");
-            response = null;
-        }
+    //     Map<String, List<?>> response = new HashMap<>();
+    //     if(category==null){
+    //         response = adminService.combinedFilteredExpiredPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     } else
+    //     if(category.equalsIgnoreCase("Residential")){
+    //         List<ResidentialPropertyResponse> resProp = adminService.filterExpiredResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",resProp);
+    //         response.put("commercial",null);
+    //         System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else
+    //     if(category.equalsIgnoreCase("Commercial")){
+    //         List<CommercialPropertyResponse> comProp = adminService.filterExpiredComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",null);
+    //         response.put("commercial",comProp);
+    //         System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else{
+    //         System.out.println("Response set as null");
+    //         response = null;
+    //     }
 
-    return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/filterExpiredProperties")
-    public ResponseEntity<?> filterExpiredProperties(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String propertyTypes,
-            @RequestParam(required = false) String preference,
-            @RequestParam(required = false) Long priceMin,
-            @RequestParam(required = false) Long priceMax,
-            @RequestParam(required = false) String furnishing,
-            @RequestParam(required = false) String state,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String amenities,
-            @RequestParam(required = false) String availability,
-            @RequestParam(required = false) Integer areaMin,
-            @RequestParam(required = false) Integer areaMax,
-            @RequestParam(required = false) String ageRanges,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        System.out.println("category: "+category);
-        System.out.println("propertyTypes: "+propertyTypes);
-        System.out.println("preference: "+preference);
-        System.out.println("priceMin: "+priceMin);
-        System.out.println("priceMax: "+priceMax);
-        System.out.println("furnishing: "+furnishing);
-        System.out.println("state: "+state);
-        System.out.println("city: "+city);
-        System.out.println("amenities: "+amenities);
-        System.out.println("availability: "+availability);
-        System.out.println("areaMin: "+areaMin);
-        System.out.println("areaMax: "+areaMax);
-        System.out.println("ageRanges: "+ageRanges);
-
-        Map<String, List<?>> response = new HashMap<>();
-        if(category==null){
-            response = adminService.combinedFilteredExpiredPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        } else
-        if(category.equalsIgnoreCase("Residential")){
-            List<ResidentialPropertyResponse> resProp = adminService.filterExpiredResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",resProp);
-            response.put("commercial",null);
-            System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else
-        if(category.equalsIgnoreCase("Commercial")){
-            List<CommercialPropertyResponse> comProp = adminService.filterExpiredComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",null);
-            response.put("commercial",comProp);
-            System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else{
-            System.out.println("Response set as null");
-            response = null;
-        }
-
-    return ResponseEntity.ok(response);
-    }
+    // return ResponseEntity.ok(response);
+    // }
     
-    @GetMapping("/filterVipProperties")
-    public ResponseEntity<?> filterVipProperties(
-            @RequestParam(required = false) String category,
-            @RequestParam(required = false) String propertyTypes,
-            @RequestParam(required = false) String preference,
-            @RequestParam(required = false) Long priceMin,
-            @RequestParam(required = false) Long priceMax,
-            @RequestParam(required = false) String furnishing,
-            @RequestParam(required = false) String state,
-            @RequestParam(required = false) String city,
-            @RequestParam(required = false) String amenities,
-            @RequestParam(required = false) String availability,
-            @RequestParam(required = false) Integer areaMin,
-            @RequestParam(required = false) Integer areaMax,
-            @RequestParam(required = false) String ageRanges,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
-        System.out.println("category: "+category);
-        System.out.println("propertyTypes: "+propertyTypes);
-        System.out.println("preference: "+preference);
-        System.out.println("priceMin: "+priceMin);
-        System.out.println("priceMax: "+priceMax);
-        System.out.println("furnishing: "+furnishing);
-        System.out.println("state: "+state);
-        System.out.println("city: "+city);
-        System.out.println("amenities: "+amenities);
-        System.out.println("availability: "+availability);
-        System.out.println("areaMin: "+areaMin);
-        System.out.println("areaMax: "+areaMax);
-        System.out.println("ageRanges: "+ageRanges);
+    // @GetMapping("/filterVipProperties")
+    // public ResponseEntity<?> filterVipProperties(
+    //         @RequestParam(required = false) String category,
+    //         @RequestParam(required = false) String propertyTypes,
+    //         @RequestParam(required = false) String preference,
+    //         @RequestParam(required = false) Long priceMin,
+    //         @RequestParam(required = false) Long priceMax,
+    //         @RequestParam(required = false) String furnishing,
+    //         @RequestParam(required = false) String state,
+    //         @RequestParam(required = false) String city,
+    //         @RequestParam(required = false) String amenities,
+    //         @RequestParam(required = false) String availability,
+    //         @RequestParam(required = false) Integer areaMin,
+    //         @RequestParam(required = false) Integer areaMax,
+    //         @RequestParam(required = false) String ageRanges,
+    //         @RequestParam(defaultValue = "0") int page,
+    //         @RequestParam(defaultValue = "10") int size
+    // ) {
+    //     System.out.println("category: "+category);
+    //     System.out.println("propertyTypes: "+propertyTypes);
+    //     System.out.println("preference: "+preference);
+    //     System.out.println("priceMin: "+priceMin);
+    //     System.out.println("priceMax: "+priceMax);
+    //     System.out.println("furnishing: "+furnishing);
+    //     System.out.println("state: "+state);
+    //     System.out.println("city: "+city);
+    //     System.out.println("amenities: "+amenities);
+    //     System.out.println("availability: "+availability);
+    //     System.out.println("areaMin: "+areaMin);
+    //     System.out.println("areaMax: "+areaMax);
+    //     System.out.println("ageRanges: "+ageRanges);
 
-        Map<String, List<?>> response = new HashMap<>();
-        if(category==null){
-            response = adminService.combinedFilteredVipPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        } else
-        if(category.equalsIgnoreCase("Residential")){
-            List<ResidentialPropertyResponse> resProp = adminService.filterVipResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",resProp);
-            response.put("commercial",null);
-            System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else
-        if(category.equalsIgnoreCase("Commercial")){
-            List<CommercialPropertyResponse> comProp = adminService.filterVipComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
-            response.put("residential",null);
-            response.put("commercial",comProp);
-            System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
-        }else{
-            System.out.println("Response set as null");
-            response = null;
-        }
+    //     Map<String, List<?>> response = new HashMap<>();
+    //     if(category==null){
+    //         response = adminService.combinedFilteredVipPropList(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         System.out.println("When category is null, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     } else
+    //     if(category.equalsIgnoreCase("Residential")){
+    //         List<ResidentialPropertyResponse> resProp = adminService.filterVipResProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",resProp);
+    //         response.put("commercial",null);
+    //         System.out.println("When category is Residential, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else
+    //     if(category.equalsIgnoreCase("Commercial")){
+    //         List<CommercialPropertyResponse> comProp = adminService.filterVipComProp(propertyTypes, preference, priceMin, priceMax, furnishing, state, city, amenities, availability, areaMin, areaMax, ageRanges);
+    //         response.put("residential",null);
+    //         response.put("commercial",comProp);
+    //         System.out.println("When category is Commercial, response for filters: Residential::: "+ response.get("residential")+" Commercial::: "+ response.get("commercial"));
+    //     }else{
+    //         System.out.println("Response set as null");
+    //         response = null;
+    //     }
 
-    return ResponseEntity.ok(response);
-    }
+    // return ResponseEntity.ok(response);
+    // }
 
     @GetMapping("/property/{category}/{listingId}")
     public ResponseEntity<?> getPropertyById(@PathVariable Integer listingId, @PathVariable String category) {
@@ -351,13 +400,15 @@ public class AdminController {
     }
 
     @GetMapping("/allUsers")
-    public ResponseEntity<?> getAllUsers() {
-        return ResponseEntity.ok(adminService.getAllUsers());
+    public ResponseEntity<?> getAllUsers(@RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "8") int size) {
+        return ResponseEntity.ok(adminService.getAllUsers(page, size));
     }
 
     @GetMapping("/allSellers")
-    public ResponseEntity<?> getAllSellers() {
-        return ResponseEntity.ok(adminService.getAllSellers());
+    public ResponseEntity<?> getAllSellers(@RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "8") int size) {
+        return ResponseEntity.ok(adminService.getAllSellers(page, size));
     }
 
     @PatchMapping("/togglePropaddaVerified/{userId}")
@@ -367,8 +418,9 @@ public class AdminController {
     }
 
     @GetMapping("/pendingKycUsers")
-    public ResponseEntity<?> pendingKycUsers() {
-        return ResponseEntity.ok(adminService.pendingKycUsers());
+    public ResponseEntity<?> pendingKycUsers(@RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "8") int size) {
+        return ResponseEntity.ok(adminService.pendingKycUsers(page, size));
     }
 
     @PatchMapping("/sellerKyc/approve/{userId}")
