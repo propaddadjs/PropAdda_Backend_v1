@@ -30,6 +30,9 @@ public interface CommercialPropertyDetailsRepo extends JpaRepository<CommercialP
 
     List<CommercialPropertyDetails> findByCommercialOwner(Users owner);
 
+    @Query("SELECT COUNT(c) FROM CommercialPropertyDetails c WHERE c.commercialOwner = :owner and adminApproved <> 'Rejected'")
+    int findTotalPropertiesPostedByCommercialOwner(Users owner);
+
     List<CommercialPropertyDetails> findByCommercialOwnerAndAdminApprovedAndExpired(Users owner, String adminApproved, Boolean expired);
 
     List<CommercialPropertyDetails> findByCommercialOwnerAndExpired(Users owner, Boolean expired);

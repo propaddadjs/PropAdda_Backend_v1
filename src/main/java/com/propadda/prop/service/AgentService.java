@@ -211,7 +211,7 @@ public class AgentService {
 
     public Map<String, Integer> getAgentDashboardMetrics(Integer agentId) {
         Map<String, Integer> metrics = new HashMap<>();
-        metrics.put("totalPropertiesListed",cRepo.findByCommercialOwner(userRepo.findById(agentId).get()).size() +  rRepo.findByResidentialOwner(userRepo.findById(agentId).get()).size());
+        metrics.put("totalPropertiesListed",cRepo.findTotalPropertiesPostedByCommercialOwner(userRepo.findById(agentId).get()) +  rRepo.findTotalPropertiesPostedByResidentialOwner(userRepo.findById(agentId).get()));
         metrics.put("activeProperties",getAllPropertiesByAgent(agentId).get("Commercial").size() +  getAllPropertiesByAgent(agentId).get("Residential").size());
         metrics.put("totalPropertiesPendingApproval",pendingApprovalPropertiesForAgent(agentId).get("Commercial").size() +  pendingApprovalPropertiesForAgent(agentId).get("Residential").size());
         metrics.put("totalPropertiesSold",getSoldProperties(agentId).get("Commercial").size() +  getSoldProperties(agentId).get("Residential").size());

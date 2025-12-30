@@ -22,6 +22,9 @@ public interface ResidentialPropertyDetailsRepo extends JpaRepository<Residentia
 
     List<ResidentialPropertyDetails> findByResidentialOwner(Users owner);
 
+    @Query("SELECT COUNT(c) FROM ResidentialPropertyDetails c WHERE c.residentialOwner = :owner and adminApproved <> 'Rejected'")
+    int findTotalPropertiesPostedByResidentialOwner(Users owner);
+
     List<ResidentialPropertyDetails> findByResidentialOwnerAndAdminApprovedAndExpired(Users owner, String adminApproved, Boolean expired);
 
     List<ResidentialPropertyDetails> findByResidentialOwnerAndExpired(Users owner, Boolean expired);
